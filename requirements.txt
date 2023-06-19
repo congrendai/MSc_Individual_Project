@@ -1,0 +1,10 @@
+networkx==3.1
+grakel==0.1.8
+numpy==1.23.5
+pyvis==0.3.2
+streamlit==1.23.1
+streamlit-shap==1.0.2
+shap==0.41.0
+matplotlib==3.4.3
+torch_geometric==2.3.1
+torch==2.0.1
