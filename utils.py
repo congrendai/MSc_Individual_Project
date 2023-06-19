@@ -121,6 +121,8 @@ def read_data(
             
         elif re.findall(r'.*readme.*', file_name, re.IGNORECASE):
             dataset_metadata[name]["readme"] = True
+            readme_path = path + file_name
+            
 
 
     indicator_path = "./"+str(name)+"/"+str(name)+"_graph_indicator.txt"
@@ -132,6 +134,8 @@ def read_data(
         "./" + str(name) + "/" + str(name) + "_edge_attributes.txt"
     graph_classes_path = \
         "./" + str(name) + "/" + str(name) + "_graph_labels.txt"
+
+        
 
     # node graph correspondence
     ngc = dict()
@@ -214,6 +218,11 @@ def read_data(
                         int(line[:-1])
                     
     # Extract readme
+    elif dataset_metadata[name].get(
+            "readme",
+            os.path.exists(readme_path)
+            ):
+        readme = np.loadtxt(readme_path, dtype=str)
 
 
     Gs = list()
