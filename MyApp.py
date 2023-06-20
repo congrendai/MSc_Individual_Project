@@ -36,7 +36,7 @@ if submit:
         graph_0 = nx.Graph()
         graph_0.add_edges_from(G[0][0])
 
-        graph_net = Network(height='465px', bgcolor='#222222', font_color='white')
+        graph_net = Network(height='465px', font_color='black')
 
         graph_net.from_nx(graph_0)
 
