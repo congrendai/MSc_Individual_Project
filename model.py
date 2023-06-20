@@ -10,14 +10,13 @@ class Model:
         self.kernel = kernel(normalize=False)
         self.dataset = fetch_dataset(dataset_name, verbose=False)
         self.readme = self.dataset.readme
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.dataset.data, self.dataset.target, test_size=0.2, shuffle=False)
-        self.K_train = self.kernel.fit_transform(self.X_train)
-        self.K_test = self.kernel.transform(self.X_test)
-        self.clf = SVC(kernel='precomputed')
-        self.clf.fit(self.K_train, self.y_train)
-        self.y_pred = self.clf.predict(self.K_test)
-        self.explainer = shap.Explainer(self.clf.predict, self.K_train, max_evals=2*len(self.K_train)+1)
-        self.shap_values = self.explainer(self.K_test)
+        self.features = self.kernel.fit(self.dataset.data)
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.features.X.toarray(), self.dataset.target, test_size=0.2, shuffle=False)
+        self.clf = SVC(kernel='linear')
+        self.clf.fit(self.X_train, self.y_train)
+        self.y_pred = self.clf.predict(self.X_test)
+        self.explainer = shap.Explainer(self.clf.predict, self.X_train, max_evals=2*len(self.X_train)+1)
+        self.shap_values = self.explainer(self.X_test)
         print("Accuracy for {} is {}".format(dataset_name, accuracy_score(self.y_test, self.y_pred)))
 
     def get_readme(self):

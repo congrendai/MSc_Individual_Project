@@ -6,6 +6,7 @@ import streamlit.components.v1 as components
 from pyvis.network import Network
 from grakel.kernels import ShortestPath
 from utils import fetch_dataset
+from visualization import Dataset
 
 favicon = Image.open("./favicon.ico")
 
