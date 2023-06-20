@@ -4,7 +4,7 @@ import networkx as nx
 import streamlit as st
 import streamlit.components.v1 as components
 from pyvis.network import Network
-from grakel.kernels import ShortestPath
+from grakel.kernels import VertexHistogram, EdgeHistogram, ShortestPath
 from utils import fetch_dataset
 from visualization import Dataset
 
@@ -25,47 +25,48 @@ hide_streamlit_style = """
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-query = st.sidebar.text_input("Dataset name:")
+query = st.sidebar.text_input("Dataset name:", "MUTAG" )
+kernel = st.sidebar.selectbox("Kernel", ["Vertex Histogram", "Edge Histogram", "Shortest Path"])
+
+if kernel == "Vertex Histogram":
+    kernel = VertexHistogram
+elif kernel == "Edge Histogram":
+    kernel = EdgeHistogram
+elif kernel == "Shortest Path":
+    kernel = ShortestPath
+
 submit = st.sidebar.button("Submit")
 
 
-if submit:
-    try:
-        visualization = Dataset(query)
-        graph = visualization.plot_dataset()
+if submit and kernel:
+# try:
+    dataset = Dataset(query)
+    
 
-        graph_net = Network(height='465px', font_color='black')
+    graphs = ["Graph " + str(i) for i in range(len(dataset.graphs))]
 
-        graph_net.from_nx(graph)
+    st.session_state["selected_graph"] = None
 
-        graph_net.repulsion(node_distance=420, central_gravity=0.33,
-                            spring_length=110, spring_strength=0.10,
-                            damping=0.95)
-
-        try:
-            path = '/tmp'
-            graph_net.save_graph(f'{path}/pyvis_graph.html')
-            HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
-
-        # Save and read graph as HTML file (locally)
-        except:
-            path = '/html_files'
-            graph_net.save_graph(f'{path}/pyvis_graph.html')
-            HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
+    selected_graph = st.sidebar.selectbox("Graphs in {}".format(query), graphs)
 
 
-        # Load HTML file in HTML component for display on Streamlit page
-        components.html(HtmlFile.read(), height=435)
+    if selected_graph:
+        st.session_state.selected_graph = selected_graph
 
-        SP_MUTAG = Model(ShortestPath, query)
-        st.sidebar.write(SP_MUTAG.get_readme())
-        SP_MUTAG.summary_plot()
-        SP_MUTAG.force_plot(0)
-        SP_MUTAG.bar_plot(0)
-        SP_MUTAG.waterfall_plot(0)
-        SP_MUTAG.heatmap_plot()
-    except:
-        st.write("Dataset not found.")
+    dataset.graphs[int(st.session_state.selected_graph.split(" ")[1])].plot()
+
+    st.sidebar.write(dataset.get_readme(), height=500)
+
+    SP_dataset = Model(kernel, query)
+    
+    SP_dataset.summary_plot()
+    SP_dataset.force_plot(0)
+    SP_dataset.bar_plot(0)
+    SP_dataset.waterfall_plot(0)
+    SP_dataset.heatmap_plot()
+    
+    # except:
+    #     st.write("Dataset not found.")
 
 
 

@@ -2,6 +2,8 @@ import networkx as nx
 from collections import Counter
 import matplotlib.pyplot as plt
 from utils import fetch_dataset
+import streamlit.components.v1 as components
+from pyvis.network import Network
 
 class Graph():
     def __init__(self, g, node_color_map, with_node_labels, with_egde_labels):
@@ -36,10 +38,7 @@ class Graph():
         else:
             edge_width = 1
 
-        plt.figure(figsize=(5, 5))
-        pos = nx.spring_layout(self.graph)
-        nx.draw(self.graph, pos=pos, node_color=node_color, with_labels=with_labels, node_size=80, width=edge_width, edge_color="gray")
-        plt.show()
+        plot_graph(self.graph)
 
 class Dataset():
     def __init__(self, name):
@@ -47,6 +46,7 @@ class Dataset():
         self.with_node_labels = True
         self.with_edge_labels = True
         self.dataset = fetch_dataset(self.name, verbose=False)
+        self.readme = self.dataset.readme
         self.G, self.y = self.dataset.data, self.dataset.target
 
         # Some datasets have no node labels, e.g. FRANKENSTEIN
@@ -76,6 +76,9 @@ class Dataset():
             print("{} edges have no labels.".format(name))
 
         self.graphs = [Graph(g, self.node_color_map, self.with_node_labels, self.with_edge_labels) for g in self.G]
+
+    def get_readme(self):
+        return self.readme
 
     def plot_dataset(self):
         nx_G = nx.Graph()
@@ -125,3 +128,26 @@ class Dataset():
         ax.set_ylabel("Number of samples")
         ax.set_title(self.name + " dataset")
         plt.show()
+
+def plot_graph(graph):
+    graph_net = Network()
+
+    graph_net.from_nx(graph)
+
+    graph_net.repulsion(node_distance=420, central_gravity=0.33,
+                        spring_length=110, spring_strength=0.10,
+                        damping=0.95)
+
+    try:
+        path = '/tmp'
+        graph_net.save_graph(f'{path}/pyvis_graph.html')
+        HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
+
+    # Save and read graph as HTML file (locally)
+    except:
+        path = '/html_files'
+        graph_net.save_graph(f'{path}/pyvis_graph.html')
+        HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
+
+    # Load HTML file in HTML component for display on Streamlit page
+    components.html(HtmlFile.read(), height=435)
