@@ -106,7 +106,8 @@ def read_data(
 
     path = './' + str(name) + '/'
     file_names = os.listdir(path)
-
+    readme = "No information about the dataset."
+    
     for file_name in file_names:    
         if re.findall(r'.*readme.*', file_name, re.IGNORECASE):
                 dataset_metadata[name]["readme"] = True
@@ -125,9 +126,7 @@ def read_data(
 
         elif re.findall(r'.*edge_attributes.*', file_name, re.IGNORECASE):
             dataset_metadata[name]["ea"] = True
-
-        else:
-            readme = "No information about the dataset."
+            
             
             
     indicator_path = "./"+str(name)+"/"+str(name)+"_graph_indicator.txt"
