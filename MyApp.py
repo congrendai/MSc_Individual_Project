@@ -67,7 +67,7 @@ if submit:
         SP_MUTAG.waterfall_plot(0)
         SP_MUTAG.heatmap_plot()
     except:
-        st.write("Dataset not found")
+        st.write("Dataset not found.")
 
 
 
