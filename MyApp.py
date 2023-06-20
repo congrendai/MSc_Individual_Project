@@ -47,6 +47,8 @@ if submit and kernel:
 
     dataset.graphs[selected_graph].plot()
 
+    
+
     st.sidebar.write(dataset.get_readme())
 
     SP_dataset = Model(kernel, query)

@@ -39,12 +39,12 @@ class Graph():
         else:
             edge_width = 1
 
-        # plot_graph(self.graph)
+        plot_graph(self.graph)
 
-        fig, ax = plt.subplots(figsize=(5, 5))
-        pos = nx.spring_layout(self.graph)
-        nx.draw(self.graph, pos=pos, node_color=node_color, with_labels=with_labels, node_size=80, width=edge_width, edge_color="gray")
-        st.pyplot(fig)
+        # fig, ax = plt.subplots(figsize=(5, 5))
+        # pos = nx.spring_layout(self.graph)
+        # nx.draw(self.graph, pos=pos, node_color=node_color, with_labels=with_labels, node_size=80, width=edge_width, edge_color="gray")
+        # st.pyplot(fig)
 
 class Dataset():
     def __init__(self, name):
@@ -109,9 +109,10 @@ class Dataset():
                 nx_G.add_edge(edge[0], edge[1])
                 self.edge_width = 1
 
-        plt.figure(figsize=(50, 30))
+        fig, ax = plt.subplots(figsize=(5, 5))
         pos = nx.spring_layout(nx_G)
         nx.draw(nx_G, pos=pos, node_color=self_node_color, with_labels=False, node_size=100, width=self.edge_width, edge_color="gray")
+        st.pyplot(fig)
 
         return nx_G
 
@@ -133,7 +134,7 @@ class Dataset():
         ax.set_xlabel("Class")
         ax.set_ylabel("Number of samples")
         ax.set_title(self.name + " dataset")
-        plt.show()
+        st.pyplot(fig)
 
 def plot_graph(graph):
     graph_net = Network()
