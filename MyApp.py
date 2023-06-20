@@ -31,15 +31,12 @@ submit = st.sidebar.button("Submit")
 
 if submit:
     try:
-        MUTAG_grakel = fetch_dataset(query, verbose=False)
-        G, y = MUTAG_grakel.data, MUTAG_grakel.target
-
-        graph_0 = nx.Graph()
-        graph_0.add_edges_from(G[0][0])
+        visualization = Dataset(query)
+        graph = visualization.plot_dataset()
 
         graph_net = Network(height='465px', font_color='black')
 
-        graph_net.from_nx(graph_0)
+        graph_net.from_nx(graph)
 
         graph_net.repulsion(node_distance=420, central_gravity=0.33,
                             spring_length=110, spring_strength=0.10,

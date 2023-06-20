@@ -104,6 +104,8 @@ class Dataset():
         pos = nx.spring_layout(nx_G)
         nx.draw(nx_G, pos=pos, node_color=self_node_color, with_labels=False, node_size=100, width=self.edge_width, edge_color="gray")
 
+        return nx_G
+
     def plot_class_distribution(self):
         fig, ax = plt.subplots(figsize=(6, 5))
         counter = Counter(self.y)
