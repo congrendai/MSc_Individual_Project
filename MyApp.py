@@ -8,6 +8,7 @@ from grakel.kernels import VertexHistogram, EdgeHistogram, ShortestPath
 from utils import fetch_dataset
 from visualization import Dataset
 
+
 favicon = Image.open("./favicon.ico")
 
 st.set_page_config(
