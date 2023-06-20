@@ -1,4 +1,5 @@
 import networkx as nx
+import streamlit as st
 from collections import Counter
 import matplotlib.pyplot as plt
 from utils import fetch_dataset
@@ -38,7 +39,12 @@ class Graph():
         else:
             edge_width = 1
 
-        plot_graph(self.graph)
+        # plot_graph(self.graph)
+
+        fig, ax = plt.subplots(figsize=(5, 5))
+        pos = nx.spring_layout(self.graph)
+        nx.draw(self.graph, pos=pos, node_color=node_color, with_labels=with_labels, node_size=80, width=edge_width, edge_color="gray")
+        st.pyplot(fig)
 
 class Dataset():
     def __init__(self, name):

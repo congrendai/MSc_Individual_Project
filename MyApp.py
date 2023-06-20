@@ -41,21 +41,13 @@ submit = st.sidebar.button("Submit")
 if submit and kernel:
 # try:
     dataset = Dataset(query)
-    
-
     graphs = ["Graph " + str(i) for i in range(len(dataset.graphs))]
 
-    st.session_state["selected_graph"] = None
+    selected_graph = int(st.sidebar.selectbox("Select a Graph to plot", graphs).split(" ")[1])
 
-    selected_graph = st.sidebar.selectbox("Graphs in {}".format(query), graphs)
+    dataset.graphs[selected_graph].plot()
 
-
-    if selected_graph:
-        st.session_state.selected_graph = selected_graph
-
-    dataset.graphs[int(st.session_state.selected_graph.split(" ")[1])].plot()
-
-    st.sidebar.write(dataset.get_readme(), height=500)
+    st.sidebar.write(dataset.get_readme())
 
     SP_dataset = Model(kernel, query)
     
