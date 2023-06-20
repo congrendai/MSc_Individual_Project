@@ -5,7 +5,6 @@ import streamlit as st
 import streamlit.components.v1 as components
 from pyvis.network import Network
 from grakel.kernels import ShortestPath
-
 from utils import fetch_dataset
 
 favicon = Image.open("./favicon.ico")
@@ -61,6 +60,7 @@ if submit:
     components.html(HtmlFile.read(), height=435)
 
     SP_MUTAG = Model(ShortestPath, query)
+    st.sidebar.write(SP_MUTAG.get_readme())
     SP_MUTAG.summary_plot()
     SP_MUTAG.force_plot(0)
     SP_MUTAG.bar_plot(0)

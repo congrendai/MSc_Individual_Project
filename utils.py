@@ -98,9 +98,10 @@ def read_data(
         of the `Gs` iterable. Useful for classification.
 
     """
+    
 
     dataset_metadata =  {
-        name: {"nl":False, "el":False, "na":False, "ea":False, "readme":False}
+        name: {"nl":False, "el":False, "na":False, "ea":False}
     }
 
     path = './' + str(name) + '/'
@@ -118,13 +119,18 @@ def read_data(
 
         elif re.findall(r'.*edge_attributes.*', file_name, re.IGNORECASE):
             dataset_metadata[name]["ea"] = True
-            
-        elif re.findall(r'.*readme.*', file_name, re.IGNORECASE):
-            dataset_metadata[name]["readme"] = True
-            readme_path = path + file_name
-            
 
+        else:       
+            if re.findall(r'.*readme.*', file_name, re.IGNORECASE):
+                dataset_metadata[name]["readme"] = True
+                readme_path = path + file_name
+                with open(readme_path, "r") as f:
+                    readme = f.read()
 
+            else:
+                readme = "No information about the dataset."
+            
+            
     indicator_path = "./"+str(name)+"/"+str(name)+"_graph_indicator.txt"
     edges_path = "./" + str(name) + "/" + str(name) + "_A.txt"
     node_labels_path = "./" + str(name) + "/" + str(name) + "_node_labels.txt"
@@ -134,8 +140,6 @@ def read_data(
         "./" + str(name) + "/" + str(name) + "_edge_attributes.txt"
     graph_classes_path = \
         "./" + str(name) + "/" + str(name) + "_graph_labels.txt"
-
-        
 
     # node graph correspondence
     ngc = dict()
@@ -216,15 +220,7 @@ def read_data(
                 if is_symmetric:
                     edge_labels[ngc[elc[i][1]]][(elc[i][1], elc[i][0])] = \
                         int(line[:-1])
-                    
-    # Extract readme
-    elif dataset_metadata[name].get(
-            "readme",
-            os.path.exists(readme_path)
-            ):
-        readme = np.loadtxt(readme_path, dtype=str)
-
-
+    
     Gs = list()
     if as_graphs:
         for i in range(1, len(Graphs)+1):
@@ -240,7 +236,7 @@ def read_data(
                 classes.append(int(line[:-1]))
 
         classes = np.array(classes, dtype=int)
-        return Bunch(data=Gs, target=classes)
+        return Bunch(data=Gs, target=classes, readme=readme)
     else:
         return Bunch(data=Gs)
 
