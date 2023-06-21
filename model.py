@@ -1,4 +1,5 @@
 import shap
+import scipy
 from sklearn.svm import SVC
 from streamlit_shap import st_shap
 from utils import fetch_dataset
@@ -10,7 +11,11 @@ class Model:
         self.kernel = kernel(normalize=False)
         self.dataset = fetch_dataset(dataset_name, verbose=False)
         self.features = self.kernel.fit(self.dataset.data)
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.features.X.toarray(), self.dataset.target, test_size=0.2, shuffle=False)
+        
+        if type(self.features) == scipy.sparse.csr.csr_matrix:
+            self.features = self.features.X.toarray()
+
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.features, self.dataset.target, test_size=0.2, shuffle=False)
         self.clf = SVC(kernel='linear')
         self.clf.fit(self.X_train, self.y_train)
         self.y_pred = self.clf.predict(self.X_test)
