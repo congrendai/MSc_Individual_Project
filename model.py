@@ -10,10 +10,10 @@ class Model:
     def __init__(self, kernel, dataset_name):
         self.kernel = kernel(normalize=False)
         self.dataset = fetch_dataset(dataset_name, verbose=False)
-        self.features = self.kernel.fit(self.dataset.data)
+        self.features = self.kernel.fit(self.dataset.data).X
         
         if type(self.features) == scipy.sparse.csr.csr_matrix:
-            self.features = self.features.X.toarray()
+            self.features= self.features.toarray()
 
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.features, self.dataset.target, test_size=0.2, shuffle=False)
         self.clf = SVC(kernel='linear')
