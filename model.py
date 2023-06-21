@@ -23,8 +23,6 @@ class Model:
         self.shap_values = self.explainer(self.X_test)
         print("Accuracy for {} is {}".format(dataset_name, accuracy_score(self.y_test, self.y_pred)))
 
-
-
     def summary_plot(self):
         st_shap(shap.summary_plot(self.shap_values))
 
