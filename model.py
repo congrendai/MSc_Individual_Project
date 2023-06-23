@@ -11,7 +11,7 @@ class Model:
         self.kernel = kernel(normalize=False)
         self.dataset = fetch_dataset(dataset_name, verbose=False)
         self.k_dataset = self.kernel.fit_transform(self.dataset.data)
-        self.features = self.k_dataset.X
+        self.features = self.kernel.X
         
         if type(self.features) == scipy.sparse.csr.csr_matrix:
             self.features= self.features.toarray()
