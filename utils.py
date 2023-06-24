@@ -234,7 +234,7 @@ def read_data(
                 classes.append(int(line[:-1]))
 
         classes = np.array(classes, dtype=int)
-        return Bunch(data=Gs, target=classes, readme=readme)
+        return Bunch(data=Gs, target=classes, readme=readme, metadata=dataset_metadata)
     else:
         return Bunch(data=Gs)
 

@@ -4,7 +4,7 @@ import networkx as nx
 import streamlit as st
 import streamlit.components.v1 as components
 from pyvis.network import Network
-from grakel.kernels import VertexHistogram, EdgeHistogram, ShortestPath
+from grakel.kernels import VertexHistogram, EdgeHistogram, ShortestPath, GraphletSampling, WeisfeilerLehman
 from utils import fetch_dataset
 from visualization import Dataset
 
@@ -27,14 +27,18 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 query = st.sidebar.text_input("Dataset name:", "MUTAG" )
-kernel = st.sidebar.selectbox("Kernel", ["Vertex Histogram", "Edge Histogram", "Shortest Path"])
+kernel = st.sidebar.selectbox("Kernel", ["Vertex Histogram", "Edge Histogram", "Graphlet", "Shortest Path, " "Weisfeiler-Lehman"])
 
 if kernel == "Vertex Histogram":
     kernel = VertexHistogram
 elif kernel == "Edge Histogram":
     kernel = EdgeHistogram
+elif kernel == "Graphlet":
+    kernel = GraphletSampling
 elif kernel == "Shortest Path":
     kernel = ShortestPath
+elif kernel == "Weisfeiler-Lehman":
+    kernel = WeisfeilerLehman
 
 submit = st.sidebar.button("Submit")
 
@@ -42,6 +46,7 @@ submit = st.sidebar.button("Submit")
 if submit and kernel:
 # try:
     dataset = Dataset(query)
+
     graphs = ["Graph " + str(i) for i in range(len(dataset.graphs))]
 
     selected_graph = int(st.sidebar.selectbox("Select a Graph to plot", graphs).split(" ")[1])

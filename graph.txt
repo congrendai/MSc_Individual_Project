@@ -1,0 +1,38 @@
+class Graph():
+    def __init__(self, g, node_color_map, with_node_labels, with_egde_labels):
+        self.graph = nx.Graph()
+        
+        self.node_color_map = node_color_map
+        self.with_node_labels = with_node_labels
+        self.with_egde_labels = with_egde_labels
+        # add nodes and labels, if labels are available
+        if self.with_node_labels:
+            for i in g[1].items():
+                self.graph.add_node(i[0], label=i[1])
+
+        if self.with_egde_labels:
+        # add edges and labels, if labels are available
+            for i in g[2].items():
+                self.graph.add_edge(i[0][0], i[0][1], type=i[1])
+        else:
+            for i in g[0]:
+                self.graph.add_edge(i[0], i[1])
+
+    def plot(self, with_labels=False):
+        if len(self.node_color_map) == 0:
+            node_color = "gray"
+            
+        else:
+            node_color = [self.node_color_map[label[1]] for label in self.graph.nodes(data="label")]
+
+        if self.with_egde_labels:
+            # +1 for edge width, because edge width 0 is not visible
+            edge_width = [self.graph[u][v]["type"] + 1 for u, v in self.graph.edges()]
+            
+        else:
+            edge_width = 1
+
+        plt.figure(figsize=(5, 5))
+        pos = nx.spring_layout(self.graph)
+        nx.draw(self.graph, pos=pos, node_color=node_color, with_labels=with_labels, node_size=80, width=edge_width, edge_color="gray")
+        plt.show()
