@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 
 class Model:
     def __init__(self, kernel, dataset_name):
-        self.kernel = kernel(normalize=False)
+        self.kernel = kernel()
         self.dataset = fetch_dataset(dataset_name, verbose=False)
         self.k_dataset = self.kernel.fit_transform(self.dataset.data)
         self.features = self.kernel.X
