@@ -98,7 +98,6 @@ def read_data(
         of the `Gs` iterable. Useful for classification.
 
     """
-    
 
     dataset_metadata =  {
         name: {"nl":False, "el":False, "na":False, "ea":False, "readme":False}
