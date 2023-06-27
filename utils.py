@@ -101,7 +101,7 @@ def read_data(
     
 
     dataset_metadata =  {
-        name: {"nl":False, "el":False, "na":False, "ea":False}
+        name: {"nl":False, "el":False, "na":False, "ea":False, "readme":False}
     }
 
     path = './' + str(name) + '/'
@@ -236,7 +236,7 @@ def read_data(
         classes = np.array(classes, dtype=int)
         return Bunch(data=Gs, target=classes, readme=readme, metadata=dataset_metadata)
     else:
-        return Bunch(data=Gs)
+        return Bunch(data=Gs, readme=readme, metadata=dataset_metadata)
 
 
 base.read_data = read_data
