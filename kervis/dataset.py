@@ -114,3 +114,15 @@ class Dataset():
         ax.set_ylabel("Number of samples")
         ax.set_title(self.name + " dataset")
         plt.show()
+
+    def plot_color_map(self):
+        if self.metadata[self.name]["nl"]:
+            fig, ax = plt.subplots(figsize=(5, 4))
+            for key, color in self.node_color_map.items():
+                ax.bar(key, 1, color=color)
+
+            ax.get_yaxis().set_visible(False)
+
+            plt.show()
+        else:
+            raise ValueError("The dataset does not have node labels.")

@@ -20,7 +20,6 @@ class ShortestPath():
                 
                 # Remove duplicates
                 pairs = list(set(pairs))
-                print(pairs)
                 lengths.append(pairs)
 
                 # Assign node labels to node ids
@@ -29,4 +28,4 @@ class ShortestPath():
 
                 lengths_with_labels.append(pairs_with_labels)
 
-            return lengths_with_labels
+            return lengths, lengths_with_labels
