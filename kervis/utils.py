@@ -104,36 +104,45 @@ def read_data(
     }
 
     path = './' + str(name) + '/'
+
+    indicator_name = str(name)+"_graph_indicator.txt"
+    edge_name = str(name)+"_A.txt"
+    node_labels_name = str(name)+"_node_labels.txt"
+    node_attributes_name = str(name)+"_node_attributes.txt"
+    edge_labels_name = str(name)+"_edge_labels.txt"
+    edge_attributes_name = str(name)+"_edge_attributes.txt"
+    graph_classes_name = str(name)+"_graph_labels.txt"
+
+
     file_names = os.listdir(path)
     readme = "No information about the dataset."
     
     for file_name in file_names:
-        print(file_name)
         if re.findall(r'.*readme.*', file_name, re.IGNORECASE):
                 dataset_metadata[name]["readme"] = True
                 readme_path = path + file_name
                 with open(readme_path, "r") as f:
                     readme = f.read()
 
-        elif re.findall(r'.*node_labels.*', file_name, re.IGNORECASE):
+        elif node_labels_name in file_names:
             dataset_metadata[name]["nl"] = True
 
-        elif re.findall(r'.*edge_labels.*', file_name, re.IGNORECASE):
+        elif edge_labels_name in file_names:
             dataset_metadata[name]["el"] = True
 
-        elif re.findall(r'.*node_attributes.*', file_name, re.IGNORECASE):
+        elif node_attributes_name in file_names:
             dataset_metadata[name]["na"] = True
 
-        elif re.findall(r'.*edge_attributes.*', file_name, re.IGNORECASE):
+        elif edge_attributes_name in file_names:
             dataset_metadata[name]["ea"] = True
 
-    indicator_path = "./"+str(name)+"/"+str(name)+"_graph_indicator.txt"
-    edges_path = "./" + str(name) + "/" + str(name) + "_A.txt"
-    node_labels_path = "./" + str(name) + "/" + str(name) + "_node_labels.txt"
-    node_attributes_path = "./"+str(name)+"/"+str(name)+"_node_attributes.txt"
-    edge_labels_path = "./" + str(name) + "/" + str(name) + "_edge_labels.txt"
-    edge_attributes_path = "./" + str(name) + "/" + str(name) + "_edge_attributes.txt"
-    graph_classes_path = "./" + str(name) + "/" + str(name) + "_graph_labels.txt"
+    indicator_path = path + indicator_name
+    edges_path = path + edge_name
+    node_labels_path = path + node_labels_name
+    node_attributes_path = path + node_attributes_name
+    edge_labels_path = path + edge_labels_name
+    edge_attributes_path = path + edge_attributes_name
+    graph_classes_path = path + graph_classes_name
 
     # node graph correspondence
     ngc = dict()
@@ -224,19 +233,19 @@ def read_data(
             Gs.append([Graphs[i], node_labels[i], edge_labels[i]])
 
     if with_classes:
-        if re.findall(r'.*graph_labels.*', file_name, re.IGNORECASE):
-            graph_classes_path = path + file_name
+        if graph_classes_name in file_names:
             classes = []
             with open(graph_classes_path, "r") as f:
                 for line in f:
                     classes.append(int(line[:-1]))
 
             classes = np.array(classes, dtype=int)
-            Bunch(data=Gs, target=classes, readme=readme, metadata=dataset_metadata)
 
-        else: Bunch(data=Gs, readme=readme, metadata=dataset_metadata)
+            return Bunch(data=Gs, target=classes, readme=readme, metadata=dataset_metadata)
 
-    else: Bunch(data=Gs, readme=readme, metadata=dataset_metadata)
+        else: return Bunch(data=Gs, readme=readme, metadata=dataset_metadata)
+
+    else: return Bunch(data=Gs, readme=readme, metadata=dataset_metadata)
 
     # if with_classes:
     #     classes = []

@@ -8,7 +8,12 @@ class Dataset():
         self.name = name
         dataset = fetch_dataset(self.name, verbose=False)
         self.metadata = dataset.metadata
-        G, self.y = dataset.data, dataset.target
+        G = dataset.data
+        try:
+            self.y = dataset.target
+        except:
+            print("The dataset does not have target values.")
+
         self.graphs = []
         self.G = nx.Graph()
         
@@ -93,15 +98,18 @@ class Dataset():
         nx.draw(self.G, pos=pos, node_color=node_color, width=edge_width, node_size=node_size)
 
     def plot_class_distribution(self, with_figures=True):
-        fig, ax = plt.subplots(figsize=(6, 5))
-        counter = Counter(self.y)
-        bars = ax.bar(counter.keys(), counter.values(), width=0.4)
-        if with_figures:
-            for bars in ax.containers:
-                # make the numbers on bars away from the bars
-                ax.bar_label(bars, padding=3)
-        else:
-            pass
+        try:
+            fig, ax = plt.subplots(figsize=(6, 5))
+            counter = Counter(self.y)
+            bars = ax.bar(counter.keys(), counter.values(), width=0.4)
+            if with_figures:
+                for bars in ax.containers:
+                    # make the numbers on bars away from the bars
+                    ax.bar_label(bars, padding=3)
+            else:
+                pass
+        except ValueError:
+            print("The dataset does not have target values.")
 
         # give each bar a different color, using colormap
         cmap = plt.get_cmap("coolwarm", len(counter))
