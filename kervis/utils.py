@@ -107,7 +107,8 @@ def read_data(
     file_names = os.listdir(path)
     readme = "No information about the dataset."
     
-    for file_name in file_names:    
+    for file_name in file_names:
+        print(file_name)
         if re.findall(r'.*readme.*', file_name, re.IGNORECASE):
                 dataset_metadata[name]["readme"] = True
                 readme_path = path + file_name
@@ -125,18 +126,14 @@ def read_data(
 
         elif re.findall(r'.*edge_attributes.*', file_name, re.IGNORECASE):
             dataset_metadata[name]["ea"] = True
-            
-            
-            
+
     indicator_path = "./"+str(name)+"/"+str(name)+"_graph_indicator.txt"
     edges_path = "./" + str(name) + "/" + str(name) + "_A.txt"
     node_labels_path = "./" + str(name) + "/" + str(name) + "_node_labels.txt"
     node_attributes_path = "./"+str(name)+"/"+str(name)+"_node_attributes.txt"
     edge_labels_path = "./" + str(name) + "/" + str(name) + "_edge_labels.txt"
-    edge_attributes_path = \
-        "./" + str(name) + "/" + str(name) + "_edge_attributes.txt"
-    graph_classes_path = \
-        "./" + str(name) + "/" + str(name) + "_graph_labels.txt"
+    edge_attributes_path = "./" + str(name) + "/" + str(name) + "_edge_attributes.txt"
+    graph_classes_path = "./" + str(name) + "/" + str(name) + "_graph_labels.txt"
 
     # node graph correspondence
     ngc = dict()
@@ -227,16 +224,31 @@ def read_data(
             Gs.append([Graphs[i], node_labels[i], edge_labels[i]])
 
     if with_classes:
-        classes = []
-        with open(graph_classes_path, "r") as f:
-            for line in f:
-                classes.append(int(line[:-1]))
+        if re.findall(r'.*graph_labels.*', file_name, re.IGNORECASE):
+            graph_classes_path = path + file_name
+            classes = []
+            with open(graph_classes_path, "r") as f:
+                for line in f:
+                    classes.append(int(line[:-1]))
 
-        classes = np.array(classes, dtype=int)
-        return Bunch(data=Gs, target=classes, readme=readme, metadata=dataset_metadata)
-    else:
-        return Bunch(data=Gs, readme=readme, metadata=dataset_metadata)
+            classes = np.array(classes, dtype=int)
+            Bunch(data=Gs, target=classes, readme=readme, metadata=dataset_metadata)
 
+        else: Bunch(data=Gs, readme=readme, metadata=dataset_metadata)
+
+    else: Bunch(data=Gs, readme=readme, metadata=dataset_metadata)
+
+    # if with_classes:
+    #     classes = []
+    #     with open(graph_classes_path, "r") as f:
+    #         for line in f:
+    #             classes.append(int(line[:-1]))
+
+    #     classes = np.array(classes, dtype=int)
+
+    #     return Bunch(data=Gs, target=classes, readme=readme, metadata=dataset_metadata)
+    # else:
+    #     return Bunch(data=Gs, readme=readme, metadata=dataset_metadata)
 
 base.read_data = read_data
 
@@ -321,18 +333,18 @@ def fetch_dataset(
                 _download_zip(name)
             else:
                 raise IOError('Dataset ' + name +
-                                ' was not found on ' + str(data_home))
+                                ' was not found on' + str(data_home))
         else:
             # move to the general data directory
             os.chdir(data_home)
 
         with zipfile.ZipFile(str(name) + '.zip', "r") as zip_ref:
             if verbose:
-                print("Extracting dataset ", str(name) + "..")
+                print("Extracting dataset", str(name) + "..")
             zip_ref.extractall()
 
         if verbose:
-            print("Parsing dataset ", str(name) + "..")
+            print("Parsing dataset", str(name) + "..")
 
         data = read_data(name,
                             with_classes=with_classes,

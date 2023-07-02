@@ -1,9 +1,30 @@
 import networkx as nx
+from multiprocessing import Pool
 from collections import Counter
 
 class ShortestPath():
     def __init__(self, with_labels = True):
         self.with_labels = with_labels
+
+    def get_feature(self, graph):
+        lengths = []
+        node_label_dict = dict(graph.nodes(data="label"))
+        for length in nx.all_pairs_shortest_path_length(graph):
+            pair = [(*sorted((length[0], k)), v) for k,v in length[1].items() if v != 0]
+            lengths.extend(pair)
+        
+        # Remove duplicates
+        lengths = list(set(lengths))
+
+        # Assign node labels to node ids
+        if self.with_labels:
+            lengths_with_labels = []
+            for length in lengths:
+                lengths_with_labels.append((node_label_dict[length[0]], node_label_dict[length[1]], length[2]))
+
+            return lengths_with_labels
+        else:
+            return lengths
             
 
     def fit_transform(self, G):
