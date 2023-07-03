@@ -6,9 +6,12 @@ from itertools import combinations
 from matplotlib import pyplot as plt
 
 class Graphlet():
-    def __init__(self, k = 4):
+    def __init__(self, k = 4, connected = True):
         self.k = k
-        self.graphlets = [g for g in nx.graph_atlas_g() if len(g.nodes())==self.k and len(list(nx.connected_components(g)))==1] # and len(list(nx.connected_components(g)))==1
+        if connected:
+            self.graphlets = [g for g in nx.graph_atlas_g() if len(g.nodes())==self.k and len(list(nx.connected_components(g)))==1]
+        else:
+            self.graphlets = [g for g in nx.graph_atlas_g() if len(g.nodes())==self.k]
 
     def get_feature(self, graph):
         feature = []
