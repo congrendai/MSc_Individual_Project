@@ -13,8 +13,8 @@ class Model:
         self.k_dataset = self.kernel.fit_transform(self.dataset.data)
         self.features = self.kernel.X
         
-        if type(self.features) == scipy.sparse.csr.csr_matrix:
-            self.features= self.features.toarray()
+        # if type(self.features) == scipy.sparse.csr.csr_matrix:
+        #     self.features= self.features.toarray()
 
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.features, self.dataset.target, test_size=0.2, shuffle=False)
         self.clf = SVC(kernel='linear')
