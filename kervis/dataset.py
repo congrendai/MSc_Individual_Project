@@ -8,7 +8,8 @@ class Dataset():
         self.name = name
         dataset = fetch_dataset(self.name, verbose=False)
         self.metadata = dataset.metadata
-        G = dataset.data
+        self.data = dataset.data
+    
         try:
             self.y = dataset.target
         except:
@@ -18,11 +19,11 @@ class Dataset():
         self.G = nx.Graph()
         
         if self.metadata[name]["nl"] == True:
-            self.node_labels = list(set(label for g in G for label in g[1].values()))
+            self.node_labels = list(set(label for g in self.data for label in g[1].values()))
             node_cmap = plt.get_cmap('coolwarm', len(self.node_labels))
             # +2 changes the color map to start from 2
             self.node_color_map = {self.node_labels[index]: node_cmap(index) for index in range(len(self.node_labels))}
-            for g in G:
+            for g in self.data:
                 nx_G = nx.Graph()
                 for node in g[1].items():
                     self.G.add_node(node[0], label=node[1])
@@ -30,22 +31,22 @@ class Dataset():
                 self.graphs.append(nx_G)
 
             if self.metadata[name]["el"] == True:
-                self.edge_labels = list(set(label for g in G for label in g[2].values()))
-                for g, graph in zip(G, self.graphs):
+                self.edge_labels = list(set(label for g in self.data for label in g[2].values()))
+                for g, graph in zip(self.data, self.graphs):
                     for edge in g[2].items():
                         self.G.add_edge(edge[0][0], edge[0][1], type=edge[1])
                         graph.add_edge(edge[0][0], edge[0][1], type=edge[1])
             
             else:
-                for g, graph in zip(G, self.graphs):
+                for g, graph in zip(self.data, self.graphs):
                     for edge in g[0]:
                         self.G.add_edge(edge[0], edge[1])
                         graph.add_edge(edge[0], edge[1])
                         
         else:
             if self.metadata[name]["el"] == True:
-                self.edge_labels = list(set(label for g in G for label in g[2].values()))
-                for g in G:
+                self.edge_labels = list(set(label for g in self.data for label in g[2].values()))
+                for g in self.data:
                     nx_G = nx.Graph()
                     for edge in g[2].items():
                         self.G.add_edge(edge[0][0], edge[0][1], type=edge[1])
@@ -53,7 +54,7 @@ class Dataset():
                     self.graphs.append(nx_G)
                         
             else:
-                for g in G:
+                for g in self.data:
                     nx_G = nx.Graph()
                     for edge in g[0]:
                         self.G.add_edge(edge[0], edge[1])
