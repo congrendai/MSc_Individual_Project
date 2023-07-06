@@ -19,12 +19,12 @@ class Kernel():
 
         # get all the keys of all graphs (duplicated keys included)
         feature_counter_keys = [key for feature_counter in feature_counters for key in feature_counter.keys()]
-        attributes = set(feature_counter_keys)
+        self.attributes = list(set(feature_counter_keys))
 
-        sparse_matrix = np.zeros([len(feature_counters), len(attributes)])
+        sparse_matrix = np.zeros([len(feature_counters), len(self.attributes)])
         for i, feature_counter in enumerate(feature_counters):
             for key, value in feature_counter.items():
-                for j, attribute in enumerate(attributes):
+                for j, attribute in enumerate(self.attributes):
                     if key == attribute:
                         sparse_matrix[i,j] = value
 

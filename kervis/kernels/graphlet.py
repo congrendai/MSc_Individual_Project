@@ -2,10 +2,11 @@ import numpy as np
 import networkx as nx
 from multiprocessing import Pool
 from collections import Counter
+from kervis.kernels import Kernel
 from itertools import combinations
 from matplotlib import pyplot as plt
 
-class Graphlet():
+class Graphlet(Kernel):
     def __init__(self, k = 4, connected = True):
         self.k = k
         if connected:
@@ -19,20 +20,11 @@ class Graphlet():
         for c in C:
             for i in range(len(self.graphlets)):
                 if nx.is_isomorphic(graph.subgraph(c), self.graphlets[i]):
-                    feature.append((c, i))
+                    feature.append((i))
 
         return feature
 
-    def fit_transform(self, G):
-        with Pool() as pool:
-            results = pool.map(self.get_feature, G)
-
-        features = [result for result in results]
-
-        return features
-
-
-    def plot_graphlet(self):
+    def plot_all_graphlet(self, node_size = 10):
         graphlets_G = nx.Graph()
         for index, graphlet in enumerate(self.graphlets):  
             graphlets_G.add_nodes_from(np.array(graphlet.nodes())+index*self.k)
@@ -41,4 +33,10 @@ class Graphlet():
         plt.figure(figsize=(10, 10), dpi=300)
         plt.margins(0.0)
         pos = nx.nx_agraph.pygraphviz_layout(graphlets_G)
-        nx.draw(graphlets_G, pos=pos, node_color="tab:blue", width=0.5, node_size=1)
+        nx.draw(graphlets_G, pos=pos, node_color="tab:blue", width=0.5, node_size=node_size)
+
+    def plot_graphlet(self, graphlet, node_size = 10):
+        plt.figure(figsize=(10, 10), dpi=300)
+        plt.margins(0.0)
+        pos = nx.nx_agraph.pygraphviz_layout(graphlet)
+        nx.draw(graphlet, pos=pos, node_color="tab:blue", width=0.5, node_size=node_size)
