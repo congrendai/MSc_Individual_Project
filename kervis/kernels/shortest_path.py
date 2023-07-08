@@ -13,7 +13,7 @@ class ShortestPath(Kernel):
             pairs = []
             node_label_dict = dict(graph.nodes(data="label"))
             for length in nx.all_pairs_shortest_path_length(graph):
-                pair = [(sorted((length[0], k)), v) for k,v in length[1].items() if v != 0]
+                pair = [(*sorted((length[0], k)), v) for k,v in length[1].items() if v != 0]
                 pairs.extend(pair)
 
             # Remove duplicates
