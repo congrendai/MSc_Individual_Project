@@ -1,7 +1,7 @@
 import networkx as nx
 from collections import Counter
 import matplotlib.pyplot as plt
-from kervis.utils import fetch_dataset
+from kervis.utils.utils import fetch_dataset
 
 class Dataset():
     def __init__(self, name):

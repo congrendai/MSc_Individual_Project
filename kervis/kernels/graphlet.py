@@ -1,6 +1,5 @@
 import numpy as np
 import networkx as nx
-from collections import Counter
 from kervis.kernels import Kernel
 from itertools import combinations
 from matplotlib import pyplot as plt
