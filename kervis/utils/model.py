@@ -44,18 +44,3 @@ class Model:
 
     def heatmap_plot(self):
         shap.plots.heatmap(self.shap_values)
-
-    # def summary_plot(self):
-    #     st_shap(shap.summary_plot(self.shap_values))
-
-    # def force_plot(self, sample_index):
-    #     st_shap(shap.force_plot(self.shap_values[sample_index], matplotlib=True), width=700)
-
-    # def bar_plot(self, sample_index):
-    #     st_shap(shap.bar_plot(self.shap_values.values[sample_index]))
-
-    # def waterfall_plot(self, sample_index):
-    #     st_shap(shap.plots.waterfall(self.shap_values[sample_index]))
-
-    # def heatmap_plot(self):
-    #     st_shap(shap.plots.heatmap(self.shap_values))
