@@ -2,10 +2,11 @@ import shap
 import scipy
 import networkx as nx
 from sklearn.svm import SVC
+from matplotlib import pyplot as plt
 from kervis.utils.dataset import Dataset
 from sklearn.metrics import accuracy_score
-from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, Graphlet, WeisfeilerLehman
 from sklearn.model_selection import train_test_split
+from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, Graphlet, WeisfeilerLehman
 
 class Model:
     def __init__(self, dataset_name, kernel , model, test_size=0.2, shuffle=False):
@@ -65,20 +66,28 @@ class Model:
 
     def highlight_features(self, graph_index, shap_feature_index):
         features = self.kernel.find_features(graph_index, shap_feature_index)
-        if type(self.kernel) == type(VertexHistogram()):
-            pass
+        if features:
+            if type(self.kernel) == type(VertexHistogram()):
+            
+                nx.draw_networkx_nodes(self.dataset.graphs[graph_index], pos=nx.spring_layout(self.dataset.graphs[graph_index]), nodelist=features, node_color='r')
+                nx.draw_networkx_nodes(self.dataset.graphs[graph_index], pos=nx.spring_layout(self.dataset.graphs[graph_index]), nodelist=[self.kernel.attributes[shap_feature_index]], node_color='b')
+                nx.draw_networkx_edges(self.dataset.graphs[graph_index], pos=nx.spring_layout(self.dataset.graphs[graph_index]))
+                nx.draw_networkx_labels(self.dataset.graphs[graph_index], pos=nx.spring_layout(self.dataset.graphs[graph_index]))
+                plt.show()
 
-        elif type(self.kernel) == type(EdgeHistogram()):
-            pass
+            elif type(self.kernel) == type(EdgeHistogram()):
+                pass
 
-        elif type(self.kernel) == type(ShortestPath()):
-            pass
+            elif type(self.kernel) == type(ShortestPath()):
+                pass
 
-        elif type(self.kernel) == type(Graphlet()):
-            pass
+            elif type(self.kernel) == type(Graphlet()):
+                pass
 
-        elif type(self.kernel) == type(WeisfeilerLehman()):
-            pass
+            elif type(self.kernel) == type(WeisfeilerLehman()):
+                pass
+        else:
+            print("No feature found in graph {}".format(graph_index))
 
 
     # SHAP plots
