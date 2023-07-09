@@ -8,6 +8,7 @@ class Dataset():
         self.name = name
         dataset = fetch_dataset(self.name, verbose=False)
         self.metadata = dataset.metadata
+        self.readme = dataset.readme
         self.data = dataset.data
     
         try:
@@ -60,9 +61,6 @@ class Dataset():
                         self.G.add_edge(edge[0], edge[1])
                         nx_G.add_edge(edge[0], edge[1])
                     self.graphs.append(nx_G)
-
-    def get_readme(self):
-        return self.dataset.readme
     
     def plot_graph(self, index, node_size=80, with_labels=False):
         if self.metadata[self.name]["nl"] == True:

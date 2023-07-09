@@ -115,7 +115,7 @@ def read_data(
 
 
     file_names = os.listdir(path)
-    readme = "No information about the dataset."
+    readme = "No information about the {} dataset.".format(name)
     
     for file_name in file_names:
         if re.findall(r'.*readme.*', file_name, re.IGNORECASE):
@@ -124,16 +124,16 @@ def read_data(
                 with open(readme_path, "r") as f:
                     readme = f.read()
 
-        elif node_labels_name in file_names:
+        if node_labels_name in file_names:
             dataset_metadata[name]["nl"] = True
 
-        elif edge_labels_name in file_names:
+        if edge_labels_name in file_names:
             dataset_metadata[name]["el"] = True
 
-        elif node_attributes_name in file_names:
+        if node_attributes_name in file_names:
             dataset_metadata[name]["na"] = True
 
-        elif edge_attributes_name in file_names:
+        if edge_attributes_name in file_names:
             dataset_metadata[name]["ea"] = True
 
     indicator_path = path + indicator_name
