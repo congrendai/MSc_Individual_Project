@@ -33,6 +33,36 @@ class Model:
         self.explainer = shap.Explainer(self.clf.predict, self.X_train)
         self.shap_values = self.explainer(self.X_test)
 
+    def find_features(self, graph_index, shap_feature_index):
+        if type(self.kernel) == type(VertexHistogram()):
+            pass
+
+        elif type(self.kernel) == type(EdgeHistogram()):
+            pass
+
+        elif type(self.kernel) == type(ShortestPath()):
+            paths = []
+            for path in nx.all_pairs_shortest_path_length(self.dataset.graphs[graph_index]):
+                for key, value in path[1].items():
+                    if value == self.kernel.attributes[shap_feature_index][2]:
+                        paths.append((*sorted((path[0], key)), value))
+
+            paths = list(set(paths))
+            paths_in_graph = []
+            for path in paths:
+                if self.dataset.graphs[graph_index].nodes(data="label")[path[0]] == self.kernel.attributes[shap_feature_index][0] \
+                    and self.dataset.graphs[graph_index].nodes(data="label")[path[1]] == self.kernel.attributes[shap_feature_index][1]:
+                    paths_in_graph.append(path)
+
+            return paths_in_graph
+
+        elif type(self.kernel) == type(Graphlet()):
+            pass
+
+        elif type(self.kernel) == type(WeisfeilerLehman()):
+            pass
+            
+
     def highlight_features(self, graph_index, shap_feature_index):
         features = self.kernel.find_features(graph_index, shap_feature_index)
         if type(self.kernel) == type(VertexHistogram()):
