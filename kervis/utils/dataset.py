@@ -62,11 +62,9 @@ class Dataset():
                         nx_G.add_edge(edge[0], edge[1])
                     self.graphs.append(nx_G)
     
-    def plot_graph(self, index, node_size=80, with_labels=False):
+    def plot_graph(self, index, node_size=80, with_labels=False, node_color = "tab:blue", edge_color="k"):
         if self.metadata[self.name]["nl"] == True:
             node_color = [self.node_color_map[label[1]] for label in self.graphs[index].nodes(data="label")]
-        else:
-            node_color = "tab:blue"
 
         if self.metadata[self.name]["el"] == True:
             # +0.5 for edge width, because edge width 0 is not visible
@@ -77,7 +75,7 @@ class Dataset():
         plt.figure(figsize=(5, 5), dpi=100)
         plt.margins(0.0)
         pos = nx.nx_agraph.pygraphviz_layout(self.graphs[index])
-        nx.draw(self.graphs[index], pos=pos, node_color=node_color, width=edge_width, node_size=node_size, with_labels=with_labels)
+        nx.draw(self.graphs[index], pos=pos, node_color=node_color, node_size=node_size, edge_color = edge_color, width=edge_width, with_labels=with_labels)
 
     def plot_G(self, node_size=30):
         if self.metadata[self.name]["nl"] == True:

@@ -34,10 +34,10 @@ class Model:
 
     def find_features(self, graph_index, shap_feature_index):
         if type(self.kernel) == type(VertexHistogram()):
-            pass
+            return [key for key, value in self.dataset.graphs[graph_index].nodes(data="label") if value == self.kernel.attributes[shap_feature_index]]
 
         elif type(self.kernel) == type(EdgeHistogram()):
-            pass
+            return [(u, v) for u, v, t in self.dataset.graphs[graph_index].edges(data="type") if t == self.kernel.attributes[shap_feature_index]]
 
         elif type(self.kernel) == type(ShortestPath()):
             paths = []
@@ -56,7 +56,7 @@ class Model:
             return paths_in_graph
 
         elif type(self.kernel) == type(Graphlet()):
-            pass
+            return self.kernel.attributes[shap_feature_index]
 
         elif type(self.kernel) == type(WeisfeilerLehman()):
             pass
@@ -64,11 +64,15 @@ class Model:
     def highlight_features(self, graph_index, shap_feature_index):
         features = self.find_features(graph_index, shap_feature_index)
         if features:
+            pos = nx.nx_agraph.pygraphviz_layout(self.dataset.graphs[graph_index])
+
             if type(self.kernel) == type(VertexHistogram()):
-                pass
+                nx.draw(self.dataset.graphs[graph_index], nodelist=features, node_color='red', with_labels=True)
+                plt.show()
 
             elif type(self.kernel) == type(EdgeHistogram()):
-                pass
+                edge_color = ['red' if edge in features else 'black' for edge in self.dataset.graphs[graph_index].edges()]
+                self.dataset.plot_graph(graph_index, edge_color=edge_color)
 
             elif type(self.kernel) == type(ShortestPath()):
                 pass
