@@ -21,3 +21,19 @@ class ShortestPath(Kernel):
             pairs_with_labels = [(self.node_label_dict[pair[0]], self.node_label_dict[pair[1]], pair[2]) for pair in pairs]
 
             return pairs_with_labels
+    
+    def find_features(self, graph_index, shap_feature_index):
+        paths = []
+        for path in nx.all_pairs_shortest_path_length(self.dataset.graphs[graph_index]):
+            for key, value in path[1].items():
+                if value == self.kernel.attributes[shap_feature_index][2]:
+                    paths.append((*sorted((path[0], key)), value))
+
+        paths = list(set(paths))
+        paths_in_graph = []
+        for path in paths:
+            if self.dataset.graphs[graph_index].nodes(data="label")[path[0]] == self.kernel.attributes[shap_feature_index][0] \
+                and self.dataset.graphs[graph_index].nodes(data="label")[path[1]] == self.kernel.attributes[shap_feature_index][1]:
+                paths_in_graph.append(path)
+
+        return paths_in_graph

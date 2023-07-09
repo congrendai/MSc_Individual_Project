@@ -1,19 +1,20 @@
 import shap
 import scipy
+import networkx as nx
 from sklearn.svm import SVC
 from kervis.utils.dataset import Dataset
 from sklearn.metrics import accuracy_score
-from kervis.kernels import ShortestPath, Graphlet
+from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, Graphlet, WeisfeilerLehman
 from sklearn.model_selection import train_test_split
 
 class Model:
     def __init__(self, dataset_name, kernel , model, test_size=0.2, shuffle=False):
         self.kernel = kernel()
         self.dataset = Dataset(dataset_name)
-        if type(self.kernel) == type(ShortestPath()) or type(self.kernel) == type(Graphlet()):
-            self.kernel.fit_transform(self.dataset.graphs)
+        if type(self.kernel) == type(VertexHistogram()) or type(self.kernel) == type(EdgeHistogram()):
+            self.kernel.fit_transform(self.dataset.data) 
         else:
-            self.kernel.fit_transform(self.dataset.data)    
+            self.kernel.fit_transform(self.dataset.graphs)    
         
         self.features = self.kernel.X
         
@@ -26,10 +27,31 @@ class Model:
             self.clf = SVC(kernel='linear')
             self.clf.fit(self.X_train, self.y_train)
             self.y_pred = self.clf.predict(self.X_test)
-            self.explainer = shap.Explainer(self.clf.predict, self.X_train)
-            self.shap_values = self.explainer(self.X_test)
             print("Accuracy for {} is {}".format(dataset_name, accuracy_score(self.y_test, self.y_pred)))
 
+        # Use SHAP to explain the model's predictions
+        self.explainer = shap.Explainer(self.clf.predict, self.X_train)
+        self.shap_values = self.explainer(self.X_test)
+
+    def highlight_features(self, graph_index, shap_feature_index):
+        features = self.kernel.find_features(graph_index, shap_feature_index)
+        if type(self.kernel) == type(VertexHistogram()):
+            pass
+
+        elif type(self.kernel) == type(EdgeHistogram()):
+            pass
+
+        elif type(self.kernel) == type(ShortestPath()):
+            pass
+
+        elif type(self.kernel) == type(Graphlet()):
+            pass
+
+        elif type(self.kernel) == type(WeisfeilerLehman()):
+            pass
+
+
+    # SHAP plots
     def summary_plot(self):
         shap.summary_plot(self.shap_values)
 
