@@ -67,8 +67,13 @@ class Model:
             pos = nx.nx_agraph.pygraphviz_layout(self.dataset.graphs[graph_index])
 
             if type(self.kernel) == type(VertexHistogram()):
-                nx.draw(self.dataset.graphs[graph_index], nodelist=features, node_color='red', with_labels=True)
-                plt.show()
+                node_color = []
+                for key, value in self.dataset.graphs[graph_index].nodes(data="label"):
+                    if key in features:
+                        node_color.append((1,0,0,1))
+                    else:
+                        node_color.append(self.dataset.node_color_map[value])
+                self.dataset.plot_graph(graph_index, node_feature_color=node_color)
 
             elif type(self.kernel) == type(EdgeHistogram()):
                 edge_color = ['red' if edge in features else 'black' for edge in self.dataset.graphs[graph_index].edges()]
