@@ -65,15 +65,10 @@ class Model:
             
 
     def highlight_features(self, graph_index, shap_feature_index):
-        features = self.kernel.find_features(graph_index, shap_feature_index)
+        features = self.find_features(graph_index, shap_feature_index)
         if features:
             if type(self.kernel) == type(VertexHistogram()):
-            
-                nx.draw_networkx_nodes(self.dataset.graphs[graph_index], pos=nx.spring_layout(self.dataset.graphs[graph_index]), nodelist=features, node_color='r')
-                nx.draw_networkx_nodes(self.dataset.graphs[graph_index], pos=nx.spring_layout(self.dataset.graphs[graph_index]), nodelist=[self.kernel.attributes[shap_feature_index]], node_color='b')
-                nx.draw_networkx_edges(self.dataset.graphs[graph_index], pos=nx.spring_layout(self.dataset.graphs[graph_index]))
-                nx.draw_networkx_labels(self.dataset.graphs[graph_index], pos=nx.spring_layout(self.dataset.graphs[graph_index]))
-                plt.show()
+                pass
 
             elif type(self.kernel) == type(EdgeHistogram()):
                 pass
