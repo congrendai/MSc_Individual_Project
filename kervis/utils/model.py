@@ -4,7 +4,6 @@ import networkx as nx
 from sklearn.svm import SVC
 from matplotlib import pyplot as plt
 from kervis.utils.dataset import Dataset
-from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, Graphlet, WeisfeilerLehman
 
@@ -28,7 +27,6 @@ class Model:
             self.clf = SVC(kernel='linear')
             self.clf.fit(self.X_train, self.y_train)
             self.y_pred = self.clf.predict(self.X_test)
-            print("Accuracy for {} is {}".format(dataset_name, accuracy_score(self.y_test, self.y_pred)))
 
         # Use SHAP to explain the model's predictions
         self.explainer = shap.Explainer(self.clf.predict, self.X_train)
@@ -62,7 +60,6 @@ class Model:
 
         elif type(self.kernel) == type(WeisfeilerLehman()):
             pass
-            
 
     def highlight_features(self, graph_index, shap_feature_index):
         features = self.find_features(graph_index, shap_feature_index)
@@ -83,7 +80,6 @@ class Model:
                 pass
         else:
             print("No feature found in graph {}".format(graph_index))
-
 
     # SHAP plots
     def summary_plot(self):
