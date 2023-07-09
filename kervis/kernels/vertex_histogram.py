@@ -40,8 +40,6 @@ class VertexHistogram(VertexHistogram):
                 labels = dict()
                 self._labels = labels
 
-                # add attributes
-                self.attributes = labels.values()
             elif self._method_calling == 3:
                 labels = dict(self._labels)
             ni = 0
@@ -103,4 +101,8 @@ class VertexHistogram(VertexHistogram):
 
             if ni == 0:
                 raise ValueError('parsed input is empty')
+            
+            # add attributes
+            self.attributes = list(labels.values())
+            
             return features

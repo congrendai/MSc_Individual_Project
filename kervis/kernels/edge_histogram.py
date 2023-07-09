@@ -39,8 +39,6 @@ class EdgeHistogram(EdgeHistogram):
                 labels = dict()
                 self._labels = labels
 
-                # add attributes
-                self.attributes = list(labels.values())
             elif self._method_calling == 3:
                 labels = dict(self._labels)
             ni = 0
@@ -103,4 +101,8 @@ class EdgeHistogram(EdgeHistogram):
 
             if ni == 0:
                 raise ValueError('parsed input is empty')
+            
+            # add attributes
+            self.attributes = list(self._labels.values())
+            
             return features
