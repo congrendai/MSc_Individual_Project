@@ -2,13 +2,14 @@ import shap
 import scipy
 import networkx as nx
 from sklearn.svm import SVC
+from sklearn.ensemble import AdaBoostClassifier
 from itertools import combinations
 from kervis.utils.dataset import Dataset
 from sklearn.model_selection import train_test_split
 from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, Graphlet, WeisfeilerLehman
 
 class Model:
-    def __init__(self, kernel , model, dataset_name, test_size=0.2, shuffle=False):
+    def __init__(self, kernel , model, dataset_name, test_size=0.2, shuffle=False, seed=None):
         self.kernel = kernel
         self.dataset = Dataset(dataset_name)
         if type(self.kernel) == type(VertexHistogram()) or type(self.kernel) == type(EdgeHistogram()):
@@ -28,8 +29,13 @@ class Model:
             self.clf.fit(self.X_train, self.y_train)
             self.y_pred = self.clf.predict(self.X_test)
 
+        elif model == 'AdaBoost':
+            self.clf = AdaBoostClassifier(n_estimators=100, random_state=0)
+            self.clf.fit(self.X_train, self.y_train)
+            self.y_pred = self.clf.predict(self.X_test)
+
         # Use SHAP to explain the model's predictions
-        self.explainer = shap.Explainer(self.clf.predict, self.X_train)
+        self.explainer = shap.Explainer(self.clf.predict, self.X_train, seed=seed, max_evals=2*self.X_train.shape[1]+1)
         self.shap_values = self.explainer(self.X_test)
 
     def find_features(self, graph_index, shap_feature_index):
