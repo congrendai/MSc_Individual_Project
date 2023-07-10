@@ -62,7 +62,7 @@ class Dataset():
                         nx_G.add_edge(edge[0], edge[1])
                     self.graphs.append(nx_G)
     
-    def plot_graph(self, index, node_size=80, with_labels=False, node_feature_color = None, edge_color="k"):
+    def plot_graph(self, index, node_size=80, with_labels=False, node_feature_color = None, edge_color="k", graphlet_pos = None):
         if self.metadata[self.name]["nl"] == True:
             node_color = [self.node_color_map[label[1]] for label in self.graphs[index].nodes(data="label")]
         else:
@@ -76,11 +76,14 @@ class Dataset():
 
         plt.figure(figsize=(5, 5), dpi=100)
         plt.margins(0.0)
-        pos = nx.nx_agraph.pygraphviz_layout(self.graphs[index])
-        if node_feature_color:
-            nx.draw(self.graphs[index], pos=pos, node_color=node_feature_color, node_size=node_size, edge_color = edge_color, width=edge_width, with_labels=with_labels)
+        if graphlet_pos:
+            nx.draw(self.graphs[index], pos=graphlet_pos, node_color=node_color, node_size=node_size, edge_color = edge_color, width=edge_width, with_labels=with_labels)
         else:
-            nx.draw(self.graphs[index], pos=pos, node_color=node_color, node_size=node_size, edge_color = edge_color, width=edge_width, with_labels=with_labels)
+            pos = nx.nx_agraph.pygraphviz_layout(self.graphs[index])
+            if node_feature_color:
+                nx.draw(self.graphs[index], pos=pos, node_color=node_feature_color, node_size=node_size, edge_color = edge_color, width=edge_width, with_labels=with_labels)
+            else:
+                nx.draw(self.graphs[index], pos=pos, node_color=node_color, node_size=node_size, edge_color = edge_color, width=edge_width, with_labels=with_labels)
 
     def plot_G(self, node_size=30):
         if self.metadata[self.name]["nl"] == True:

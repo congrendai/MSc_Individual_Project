@@ -60,7 +60,7 @@ class Model:
             graph = self.dataset.graphs[graph_index]
             C = combinations(list(graph), self.kernel.k)
             for c in C:
-                if nx.is_isomorphic(graph.subgraph(c), self.kernel.graphlets[shap_feature_index]):
+                if nx.is_isomorphic(graph.subgraph(c), self.kernel.graphlets[self.kernel.attributes[shap_feature_index]]):
                     graphlets_in_graph.append(c)
 
             return graphlets_in_graph
@@ -68,7 +68,7 @@ class Model:
         elif type(self.kernel) == type(WeisfeilerLehman()):
             pass
 
-    def highlight_features(self, graph_index, shap_feature_index, with_labels=False):
+    def highlight_features(self, graph_index, shap_feature_index, node_size = 80, with_labels=False):
         features = self.find_features(graph_index, shap_feature_index)
         if features:
             pos = nx.nx_agraph.pygraphviz_layout(self.dataset.graphs[graph_index])
@@ -99,7 +99,12 @@ class Model:
                     self.dataset.plot_graph(graph_index, edge_color=edge_color, with_labels=with_labels)
 
             elif type(self.kernel) == type(Graphlet()):
-                pass
+                graph = self.dataset.graphs[graph_index]
+                edge_width = [type[2]+2 for type in graph.edges(data="type")]
+                pos = nx.nx_agraph.pygraphviz_layout(graph)
+                for feature in features:
+                    ax = self.dataset.plot_graph(graph_index, graphlet_pos=pos, node_size=node_size, with_labels=with_labels)
+                    nx.draw(graph.subgraph(feature), pos=pos, node_color="r", node_size=node_size, edge_color="r", width=edge_width, with_labels=with_labels, ax=ax)
 
             elif type(self.kernel) == type(WeisfeilerLehman()):
                 pass
