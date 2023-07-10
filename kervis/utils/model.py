@@ -61,7 +61,7 @@ class Model:
         elif type(self.kernel) == type(WeisfeilerLehman()):
             pass
 
-    def highlight_features(self, graph_index, shap_feature_index):
+    def highlight_features(self, graph_index, shap_feature_index, with_labels=False):
         features = self.find_features(graph_index, shap_feature_index)
         if features:
             pos = nx.nx_agraph.pygraphviz_layout(self.dataset.graphs[graph_index])
@@ -73,14 +73,23 @@ class Model:
                         node_color.append((1,0,0,1))
                     else:
                         node_color.append(self.dataset.node_color_map[value])
-                self.dataset.plot_graph(graph_index, node_feature_color=node_color)
+                self.dataset.plot_graph(graph_index, node_feature_color=node_color, with_labels=with_labels)
 
             elif type(self.kernel) == type(EdgeHistogram()):
                 edge_color = ['red' if edge in features else 'black' for edge in self.dataset.graphs[graph_index].edges()]
-                self.dataset.plot_graph(graph_index, edge_color=edge_color)
+                self.dataset.plot_graph(graph_index, edge_color=edge_color, with_labels=with_labels)
 
             elif type(self.kernel) == type(ShortestPath()):
-                pass
+                for feature in features:
+                    path = nx.shortest_path(self.dataset.graphs[graph_index], source=feature[0], target=feature[1])
+                    edge_color_index = []
+                    for index, edge in enumerate(self.dataset.graphs[graph_index].edges()):
+                        for i in range(len(path)-1):
+                            if (path[i], path[i+1]) == edge or (path[i+1], path[i]) == edge:
+                                edge_color_index.append(index)
+
+                    edge_color = ['red' if index in edge_color_index else 'k' for index in range(len(self.dataset.graphs[graph_index].edges()))]
+                    self.dataset.plot_graph(graph_index, edge_color=edge_color, with_labels=with_labels)
 
             elif type(self.kernel) == type(Graphlet()):
                 pass
@@ -94,14 +103,14 @@ class Model:
     def summary_plot(self):
         shap.summary_plot(self.shap_values)
 
-    def force_plot(self, sample_index):
-        shap.force_plot(self.shap_values[sample_index], matplotlib=True)
+    def force_plot(self, graph_index):
+        shap.force_plot(self.shap_values[graph_index], matplotlib=True)
 
-    def bar_plot(self, sample_index):
-        shap.bar_plot(self.shap_values.values[sample_index])
+    def bar_plot(self, graph_index):
+        shap.bar_plot(self.shap_values.values[graph_index])
 
-    def waterfall_plot(self, sample_index):
-        shap.plots.waterfall(self.shap_values[sample_index])
+    def waterfall_plot(self, graph_index):
+        shap.plots.waterfall(self.shap_values[graph_index])
 
     def heatmap_plot(self):
         shap.plots.heatmap(self.shap_values)
