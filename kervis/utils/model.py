@@ -2,14 +2,14 @@ import shap
 import scipy
 import networkx as nx
 from sklearn.svm import SVC
-from matplotlib import pyplot as plt
+from itertools import combinations
 from kervis.utils.dataset import Dataset
 from sklearn.model_selection import train_test_split
 from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, Graphlet, WeisfeilerLehman
 
 class Model:
-    def __init__(self, dataset_name, kernel , model, test_size=0.2, shuffle=False):
-        self.kernel = kernel()
+    def __init__(self, kernel , model, dataset_name, test_size=0.2, shuffle=False):
+        self.kernel = kernel
         self.dataset = Dataset(dataset_name)
         if type(self.kernel) == type(VertexHistogram()) or type(self.kernel) == type(EdgeHistogram()):
             self.kernel.fit_transform(self.dataset.data) 
@@ -56,7 +56,14 @@ class Model:
             return paths_in_graph
 
         elif type(self.kernel) == type(Graphlet()):
-            return self.kernel.attributes[shap_feature_index]
+            graphlets_in_graph = []
+            graph = self.dataset.graphs[graph_index]
+            C = combinations(list(graph), self.kernel.k)
+            for c in C:
+                if nx.is_isomorphic(graph.subgraph(c), self.kernel.graphlets[shap_feature_index]):
+                    graphlets_in_graph.append(c)
+
+            return graphlets_in_graph
 
         elif type(self.kernel) == type(WeisfeilerLehman()):
             pass
@@ -76,7 +83,7 @@ class Model:
                 self.dataset.plot_graph(graph_index, node_feature_color=node_color, with_labels=with_labels)
 
             elif type(self.kernel) == type(EdgeHistogram()):
-                edge_color = ['red' if edge in features else 'black' for edge in self.dataset.graphs[graph_index].edges()]
+                edge_color = ['r' if edge in features else 'k' for edge in self.dataset.graphs[graph_index].edges()]
                 self.dataset.plot_graph(graph_index, edge_color=edge_color, with_labels=with_labels)
 
             elif type(self.kernel) == type(ShortestPath()):
@@ -88,7 +95,7 @@ class Model:
                             if (path[i], path[i+1]) == edge or (path[i+1], path[i]) == edge:
                                 edge_color_index.append(index)
 
-                    edge_color = ['red' if index in edge_color_index else 'k' for index in range(len(self.dataset.graphs[graph_index].edges()))]
+                    edge_color = ['r' if index in edge_color_index else 'k' for index in range(len(self.dataset.graphs[graph_index].edges()))]
                     self.dataset.plot_graph(graph_index, edge_color=edge_color, with_labels=with_labels)
 
             elif type(self.kernel) == type(Graphlet()):
