@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from kervis.utils.utils import fetch_dataset
 
 class Dataset():
-    def __init__(self, name):
+    def __init__(self, name, cmap):
         self.name = name
         dataset = fetch_dataset(self.name, verbose=False)
         self.metadata = dataset.metadata
@@ -21,9 +21,16 @@ class Dataset():
         
         if self.metadata[name]["nl"] == True:
             self.node_labels = list(set(label for g in self.data for label in g[1].values()))
-            node_cmap = plt.get_cmap('coolwarm', len(self.node_labels))
-            # +2 changes the color map to start from 2
-            self.node_color_map = {self.node_labels[index]: node_cmap(index) for index in range(len(self.node_labels))}
+            if self.name == "AIDS":
+                node_cmap_1 = plt.get_cmap("tab20", 20)
+                node_cmap_2 = plt.get_cmap("tab20b", 18)
+                self.node_color_map_1 = {self.node_labels[index]: node_cmap_1(index) for index in range(len(self.node_labels[:20]))}
+                self.node_color_map_2 = {self.node_labels[index+20]: node_cmap_2(index) for index in range(len(self.node_labels[20:]))}
+                self.node_color_map = {**self.node_color_map_1, **self.node_color_map_2}
+            else:
+                node_cmap = plt.get_cmap(cmap, len(self.node_labels))
+                self.node_color_map = {self.node_labels[index]: node_cmap(index) for index in range(len(self.node_labels))}
+                
             for g in self.data:
                 nx_G = nx.Graph()
                 for node in g[1].items():
@@ -61,6 +68,7 @@ class Dataset():
                         self.G.add_edge(edge[0], edge[1])
                         nx_G.add_edge(edge[0], edge[1])
                     self.graphs.append(nx_G)
+            
     
     def plot_graph(self, index, node_size=80, with_labels=False, node_feature_color = None, edge_color="k", graphlet_pos = None):
         if self.metadata[self.name]["nl"] == True:

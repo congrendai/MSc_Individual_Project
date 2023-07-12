@@ -9,9 +9,9 @@ from sklearn.model_selection import train_test_split
 from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, Graphlet, WeisfeilerLehman
 
 class Model:
-    def __init__(self, kernel , model, dataset_name, test_size=0.2, shuffle=False, seed=None):
+    def __init__(self, kernel , model, dataset_name, test_size=0.2, shuffle=False, seed=None, camp = "coolwarm"):
         self.kernel = kernel
-        self.dataset = Dataset(dataset_name)
+        self.dataset = Dataset(dataset_name, cmap=camp)
         if type(self.kernel) == type(VertexHistogram()) or type(self.kernel) == type(EdgeHistogram()):
             self.kernel.fit_transform(self.dataset.data) 
         else:
@@ -35,7 +35,7 @@ class Model:
             self.y_pred = self.clf.predict(self.X_test)
 
         # Use SHAP to explain the model's predictions
-        self.explainer = shap.Explainer(self.clf.predict, self.X_train, seed=seed, max_evals=2*self.X_train.shape[1]+1)
+        self.explainer = shap.Explainer(self.clf.predict, self.X_train, algorithm="permutation", seed=seed, max_evals=2*self.X_train.shape[1]+1)
         self.shap_values = self.explainer(self.X_test)
 
     def find_features(self, graph_index, shap_feature_index):
@@ -118,17 +118,17 @@ class Model:
             print("No feature found in graph {}".format(graph_index))
 
     # SHAP plots
-    def summary_plot(self):
-        shap.summary_plot(self.shap_values)
+    def summary_plot(self, max_display=20):
+        shap.summary_plot(self.shap_values, max_display=max_display)
 
     def force_plot(self, graph_index):
         shap.force_plot(self.shap_values[graph_index], matplotlib=True)
 
-    def bar_plot(self, graph_index):
-        shap.bar_plot(self.shap_values.values[graph_index])
+    def bar_plot(self, graph_index, max_display=None):
+        shap.bar_plot(self.shap_values.values[graph_index], max_display=max_display)
 
-    def waterfall_plot(self, graph_index):
-        shap.plots.waterfall(self.shap_values[graph_index])
+    def waterfall_plot(self, graph_index, max_display=10):
+        shap.plots.waterfall(self.shap_values[graph_index], max_display=max_display)
 
-    def heatmap_plot(self):
-        shap.plots.heatmap(self.shap_values)
+    def heatmap_plot(self, max_display=10):
+        shap.plots.heatmap(self.shap_values, max_display=max_display)
