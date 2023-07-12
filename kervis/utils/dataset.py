@@ -30,7 +30,7 @@ class Dataset():
             else:
                 node_cmap = plt.get_cmap(cmap, len(self.node_labels))
                 self.node_color_map = {self.node_labels[index]: node_cmap(index) for index in range(len(self.node_labels))}
-                
+
             for g in self.data:
                 nx_G = nx.Graph()
                 for node in g[1].items():
@@ -68,7 +68,16 @@ class Dataset():
                         self.G.add_edge(edge[0], edge[1])
                         nx_G.add_edge(edge[0], edge[1])
                     self.graphs.append(nx_G)
-            
+
+    def set_color_map(self, cmap):
+        if self.name == "AIDS":
+            print("The color map of ADIS dataset is fixed.")
+        else:
+            if self.metadata[self.name]["nl"] == True:
+                node_cmap = plt.get_cmap(cmap, len(self.node_labels))
+                self.node_color_map = {self.node_labels[index]: node_cmap(index) for index in range(len(self.node_labels))}
+            else:
+                raise ValueError("The dataset does not have node labels.")
     
     def plot_graph(self, index, node_size=80, with_labels=False, node_feature_color = None, edge_color="k", graphlet_pos = None):
         if self.metadata[self.name]["nl"] == True:
@@ -85,6 +94,7 @@ class Dataset():
         plt.figure(figsize=(5, 5), dpi=100)
         plt.margins(0.0)
         if graphlet_pos:
+            # add legend to the graph
             nx.draw(self.graphs[index], pos=graphlet_pos, node_color=node_color, node_size=node_size, edge_color = edge_color, width=edge_width, with_labels=with_labels)
         else:
             pos = nx.nx_agraph.pygraphviz_layout(self.graphs[index])

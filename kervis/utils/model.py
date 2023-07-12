@@ -11,6 +11,7 @@ from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, Graphle
 class Model:
     def __init__(self, kernel , model, dataset_name, test_size=0.2, shuffle=False, seed=None, camp = "coolwarm"):
         self.kernel = kernel
+        self.seed = seed
         self.dataset = Dataset(dataset_name, cmap=camp)
         if type(self.kernel) == type(VertexHistogram()) or type(self.kernel) == type(EdgeHistogram()):
             self.kernel.fit_transform(self.dataset.data) 
@@ -25,7 +26,7 @@ class Model:
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.features, self.dataset.y, test_size=test_size, shuffle=shuffle)
 
         if model == 'SVM':
-            self.clf = SVC(kernel='linear')
+            self.clf = SVC(kernel='rbf', gamma='auto')
             self.clf.fit(self.X_train, self.y_train)
             self.y_pred = self.clf.predict(self.X_test)
 
@@ -34,8 +35,13 @@ class Model:
             self.clf.fit(self.X_train, self.y_train)
             self.y_pred = self.clf.predict(self.X_test)
 
-        # Use SHAP to explain the model's predictions
-        self.explainer = shap.Explainer(self.clf.predict, self.X_train, algorithm="permutation", seed=seed, max_evals=2*self.X_train.shape[1]+1)
+    def explain(self, algorithm="auto"):
+        if algorithm == "permutation":
+            # Use SHAP to explain the model's predictions
+            self.explainer = shap.Explainer(self.clf.predict, self.X_train, algorithm="permutation", seed=self.seed, max_evals=2*self.X_train.shape[1]+1)
+        else:
+            self.explainer = shap.Explainer(self.clf.predict, self.X_train, algorithm=algorithm, seed=self.seed)
+        
         self.shap_values = self.explainer(self.X_test)
 
     def find_features(self, graph_index, shap_feature_index):
@@ -119,10 +125,10 @@ class Model:
 
     # SHAP plots
     def summary_plot(self, max_display=20):
-        shap.summary_plot(self.shap_values, max_display=max_display)
+        shap.plots.beeswarm(self.shap_values, max_display=max_display)
 
     def force_plot(self, graph_index):
-        shap.force_plot(self.shap_values[graph_index], matplotlib=True)
+        shap.plots.force(self.shap_values[graph_index], matplotlib=True)
 
     def bar_plot(self, graph_index, max_display=None):
         shap.bar_plot(self.shap_values.values[graph_index], max_display=max_display)
