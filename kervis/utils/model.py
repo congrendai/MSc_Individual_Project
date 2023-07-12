@@ -92,11 +92,11 @@ class Model:
                         node_color.append((1,0,0,1))
                     else:
                         node_color.append(self.dataset.node_color_map[value])
-                self.dataset.plot_graph(graph_index, node_feature_color=node_color, with_labels=with_labels)
+                self.dataset.plot_graph(graph_index, node_feature_color=node_color, with_labels=with_labels, node_size=node_size)
 
             elif type(self.kernel) == type(EdgeHistogram()):
                 edge_color = ['r' if edge in features else 'k' for edge in self.dataset.graphs[graph_index].edges()]
-                self.dataset.plot_graph(graph_index, edge_color=edge_color, with_labels=with_labels)
+                self.dataset.plot_graph(graph_index, edge_color=edge_color, with_labels=with_labels, node_size=node_size)
 
             elif type(self.kernel) == type(ShortestPath()):
                 for feature in features:
@@ -108,7 +108,7 @@ class Model:
                                 edge_color_index.append(index)
 
                     edge_color = ['r' if index in edge_color_index else 'k' for index in range(len(self.dataset.graphs[graph_index].edges()))]
-                    self.dataset.plot_graph(graph_index, edge_color=edge_color, with_labels=with_labels)
+                    self.dataset.plot_graph(graph_index, edge_color=edge_color, with_labels=with_labels, node_size=node_size)
 
             elif type(self.kernel) == type(Graphlet()):
                 graph = self.dataset.graphs[graph_index]

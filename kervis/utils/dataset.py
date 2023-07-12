@@ -113,7 +113,7 @@ class Dataset():
         else:
             edge_width = 0.5
 
-        plt.figure(figsize=(5, 5), dpi=100)
+        plt.figure(figsize=(5, 5), dpi=200)
         plt.margins(0.0)
         if graphlet_pos:
             # add legend to the graph
