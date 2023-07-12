@@ -1,12 +1,34 @@
 import networkx as nx
 from collections import Counter
 import matplotlib.pyplot as plt
+from kervis.utils.utils import read_data
 from kervis.utils.utils import fetch_dataset
 
 class Dataset():
-    def __init__(self, name, cmap):
+    def __init__(self, name, cmap="coolwarm", from_TUDataset=True,
+                 verbose=False, data_home=None, download_if_missing=True,
+                 with_classes=True, produce_labels_nodes=False,
+                 prefer_attr_nodes=False, prefer_attr_edges=False,
+                 as_graphs=False):
+        
         self.name = name
-        dataset = fetch_dataset(self.name, verbose=False)
+
+        if from_TUDataset:
+            dataset = fetch_dataset(self.name, verbose=verbose, data_home=data_home,
+                                    download_if_missing=download_if_missing,
+                                    with_classes=with_classes,
+                                    produce_labels_nodes=produce_labels_nodes,
+                                    prefer_attr_nodes=prefer_attr_nodes,
+                                    prefer_attr_edges=prefer_attr_edges,
+                                    as_graphs=as_graphs)
+        else:
+            dataset = read_data(self.name, with_classes=with_classes,
+                                prefer_attr_nodes=prefer_attr_nodes,
+                                prefer_attr_edges=prefer_attr_edges,
+                                produce_labels_nodes=produce_labels_nodes,
+                                as_graphs=as_graphs,
+                                is_symmetric=False)
+            
         self.metadata = dataset.metadata
         self.readme = dataset.readme
         self.data = dataset.data

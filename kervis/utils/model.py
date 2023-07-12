@@ -9,10 +9,10 @@ from sklearn.model_selection import train_test_split
 from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, Graphlet, WeisfeilerLehman
 
 class Model:
-    def __init__(self, kernel , model, dataset_name, test_size=0.2, shuffle=False, seed=None, camp = "coolwarm"):
+    def __init__(self, kernel, dataset, model, test_size=0.2, shuffle=False, seed=None, camp = "coolwarm"):
         self.kernel = kernel
         self.seed = seed
-        self.dataset = Dataset(dataset_name, cmap=camp)
+        self.dataset = dataset
         if type(self.kernel) == type(VertexHistogram()) or type(self.kernel) == type(EdgeHistogram()):
             self.kernel.fit_transform(self.dataset.data) 
         else:
