@@ -137,7 +137,7 @@ class Dataset():
         else:
             edge_width = 0.5
 
-        plt.figure(figsize=(50, 50), dpi=300)
+        plt.figure(figsize=(50, 50), dpi=100)
         plt.margins(-0.03)
         pos = nx.nx_agraph.pygraphviz_layout(self.G)
         nx.draw(self.G, pos=pos, node_color=node_color, width=edge_width, node_size=node_size)
