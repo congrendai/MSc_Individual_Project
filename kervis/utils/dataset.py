@@ -101,7 +101,7 @@ class Dataset():
             else:
                 raise ValueError("The dataset does not have node labels.")
     
-    def plot_graph(self, index, node_size=80, with_labels=False, node_feature_color = None, edge_color="k", graphlet_pos = None):
+    def plot_graph(self, index, node_size=80, with_labels=False, node_feature_color = None, edge_color="k", pos = None):
         if self.metadata[self.name]["nl"] == True:
             node_color = [self.node_color_map[label[1]] for label in self.graphs[index].nodes(data="label")]
         else:
@@ -115,9 +115,9 @@ class Dataset():
 
         plt.figure(figsize=(5, 5), dpi=200)
         plt.margins(0.0)
-        if graphlet_pos:
-            # add legend to the graph
-            nx.draw(self.graphs[index], pos=graphlet_pos, node_color=node_color, node_size=node_size, edge_color = edge_color, width=edge_width, with_labels=with_labels)
+        if pos:
+            # for plot individual graph with if the kernel is graphlet
+            nx.draw(self.graphs[index], pos=pos, node_color=node_color, node_size=node_size, edge_color = edge_color, width=edge_width, with_labels=with_labels)
         else:
             pos = nx.nx_agraph.pygraphviz_layout(self.graphs[index])
             if node_feature_color:

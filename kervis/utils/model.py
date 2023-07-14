@@ -157,7 +157,7 @@ class Model:
                     edge_width = [type[2]+2 for type in graph.edges(data="type")]
                     pos = nx.nx_agraph.pygraphviz_layout(graph)
                     for feature in features:
-                        ax = self.dataset.plot_graph(graph_index, graphlet_pos=pos, node_size=node_size, with_labels=with_labels)
+                        ax = self.dataset.plot_graph(graph_index, pos=pos, node_size=node_size, with_labels=with_labels)
                         nx.draw(graph.subgraph(feature), pos=pos, node_color="r", node_size=node_size, edge_color="r", width=edge_width, with_labels=with_labels, ax=ax)
                     
         else:
