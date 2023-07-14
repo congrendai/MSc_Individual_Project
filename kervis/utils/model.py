@@ -1,10 +1,12 @@
 import shap
 import scipy
+import numpy as np
 import networkx as nx
 from sklearn.svm import SVC
-from sklearn.ensemble import AdaBoostClassifier
 from itertools import combinations
+from matplotlib import pyplot as plt
 from kervis.utils.dataset import Dataset
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.model_selection import train_test_split
 from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, Graphlet, WeisfeilerLehman
 
@@ -82,12 +84,22 @@ class Model:
         elif type(self.kernel) == type(WeisfeilerLehman()):
             pass
 
-    def highlight_features(self, graph_index, shap_feature_index, node_size = 80, with_labels=False, all=True):
+    def highlight_features(self, graph_index, shap_feature_index, node_size = 80, figsize=10, with_labels=False, all=True):
         features = self.find_features(graph_index, shap_feature_index)
         
         if features:
             if all:
-                pos = nx.nx_agraph.pygraphviz_layout(self.dataset.graphs[graph_index])
+                graph = self.dataset.graphs[graph_index]
+                nodes = np.array(graph.nodes())
+                edges = np.array(graph.edges())
+                graph_color_map = [self.dataset.node_color_map[label[1]] for label in graph.nodes(data="label")]
+                node_color = [color for _ in range(len(features)) for color in graph_color_map]
+                edge_width = [type[2]+2 for _ in range(len(features)) for type in graph.edges(data="type")]
+                G = nx.Graph()
+                for i in range(len(features)):  
+                        G.add_nodes_from(nodes+i*len(nodes))
+                        G.add_edges_from(edges+i*len(nodes))
+                pos = nx.nx_agraph.pygraphviz_layout(G)
 
                 if type(self.kernel) == type(VertexHistogram()):
                     node_color = []
@@ -103,21 +115,31 @@ class Model:
                     self.dataset.plot_graph(graph_index, edge_color=edge_color, with_labels=with_labels, node_size=node_size)
 
                 elif type(self.kernel) == type(Graphlet()):
-                    # plot all the graphlets in the graph at once
-                    graph = self.dataset.graphs[graph_index]
-                    node_color = [self.dataset.node_color_map[label[1]] for label in graph.nodes(data="label")]
-
-                    graph_cmap = self.dataset.node_color_map
-                    for feature in features:
-                        nx.draw(self.dataset.graphs[graph_index].subgraph(feature), pos=pos, node_color="r", node_size=node_size, edge_color="r", with_labels=with_labels, ax=ax)
-
+                    features = [node+i*len(nodes) for i, feature in enumerate(features) for node in feature]
+                    plt.figure(figsize=(figsize, figsize), dpi=100)
+                    plt.margins(0.0)
+                    ax = nx.draw(G, pos=pos, node_color=node_color, width=edge_width, node_size=node_size)
+                    nx.draw(G.subgraph(features), pos=pos, node_color="r", node_size=node_size, edge_color="r", width=edge_width, with_labels=with_labels, ax=ax)
 
                 elif type(self.kernel) == type(ShortestPath()):
-                    pass
+                    features = [np.array(feature)+i*len(nodes) for i, feature in enumerate(features)]
+                    edge_color_index = []
+                    for feature in features:
+                        path = nx.shortest_path(G, source=feature[0], target=feature[1])
+                        for index, edge in enumerate(G.edges()):
+                            for i in range(len(path)-1):
+                                if (path[i], path[i+1]) == edge or (path[i+1], path[i]) == edge:
+                                    edge_color_index.append(index)
+
+                    edge_color = ['r' if index in edge_color_index else 'k' for index in range(len(G.edges()))]
+                    plt.figure(figsize=(figsize, figsize), dpi=100)
+                    plt.margins(0.0)
+                    nx.draw(G, pos=pos, node_color=node_color, edge_color=edge_color, width=edge_width, node_size=node_size, with_labels=with_labels)
 
                 elif type(self.kernel) == type(WeisfeilerLehman()):
                     pass
             else:
+                pos = nx.nx_agraph.pygraphviz_layout(self.dataset.graphs[graph_index])
                 if type(self.kernel) == type(ShortestPath()):
                     for feature in features:
                         path = nx.shortest_path(self.dataset.graphs[graph_index], source=feature[0], target=feature[1])
