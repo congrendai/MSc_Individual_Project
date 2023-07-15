@@ -1,12 +1,13 @@
 import shap
 import scipy
 import numpy as np
+import xgboost as xgb
 import networkx as nx
 from sklearn.svm import SVC
+from sklearn.cluster import KMeans
 from itertools import combinations
 from matplotlib import pyplot as plt
-from kervis.utils.dataset import Dataset
-from sklearn.ensemble import AdaBoostClassifier
+from kervis.utils.evaluator import Evaluator
 from sklearn.model_selection import train_test_split
 from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, Graphlet, WeisfeilerLehman
 
@@ -25,17 +26,35 @@ class Model:
         if type(self.features) == scipy.sparse.csr.csr_matrix:
             self.features= self.features.toarray()
 
+        if -1 in set(self.dataset.y):
+                self.dataset.y = [y if y == 1 else 0 for y in self.dataset.y]
+                
+        elif 0 not in set(self.dataset.y):
+            self.dataset.y = [y-1 for y in self.dataset.y]
+
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.features, self.dataset.y, test_size=test_size, shuffle=shuffle)
 
-        if model == 'SVM':
+        if model == 'kmeans':
+            self.clf = KMeans(n_init="auto", n_clusters=len(set(self.dataset.y)))
+            self.clf.fit(self.X_train)
+            self.y_pred = self.clf.predict(self.X_test)
+        
+        elif model == 'SVM':
             self.clf = SVC(kernel='rbf', gamma='auto')
             self.clf.fit(self.X_train, self.y_train)
             self.y_pred = self.clf.predict(self.X_test)
 
-        elif model == 'AdaBoost':
-            self.clf = AdaBoostClassifier(n_estimators=100, random_state=0)
+        elif model == 'xgboost':
+            self.clf = xgb.XGBClassifier()
             self.clf.fit(self.X_train, self.y_train)
             self.y_pred = self.clf.predict(self.X_test)
+        
+        else:
+            raise ValueError("Model must be 'kmeans', 'SVM' or 'xgboost'.")
+
+    def evaluate(self):
+        self.evaluator = Evaluator(self)
+        self.evaluator.classification_report()
 
     def explain(self, algorithm="auto"):
         if algorithm == "permutation":
