@@ -66,15 +66,16 @@ class Model:
         self.shap_values = self.explainer(self.X_test)
 
     def find_features(self, graph_index, shap_feature_index):
+        index = len(self.X_train) + graph_index
         if type(self.kernel) == type(VertexHistogram()):
-            return [key for key, value in self.dataset.graphs[graph_index].nodes(data="label") if value == self.kernel.attributes[shap_feature_index]]
+            return [key for key, value in self.dataset.graphs[index].nodes(data="label") if value == self.kernel.attributes[shap_feature_index]]
 
         elif type(self.kernel) == type(EdgeHistogram()):
-            return [(u, v) for u, v, t in self.dataset.graphs[graph_index].edges(data="type") if t == self.kernel.attributes[shap_feature_index]]
+            return [(u, v) for u, v, t in self.dataset.graphs[index].edges(data="type") if t == self.kernel.attributes[shap_feature_index]]
         
         elif type(self.kernel) == type(Graphlet()):
             graphlets_in_graph = []
-            graph = self.dataset.graphs[graph_index]
+            graph = self.dataset.graphs[index]
             C = combinations(list(graph), self.kernel.k)
             for c in C:
                 if nx.is_isomorphic(graph.subgraph(c), self.kernel.graphlets[self.kernel.attributes[shap_feature_index]]):
@@ -84,7 +85,7 @@ class Model:
 
         elif type(self.kernel) == type(ShortestPath()):
             paths = []
-            for path in nx.all_pairs_shortest_path_length(self.dataset.graphs[graph_index]):
+            for path in nx.all_pairs_shortest_path_length(self.dataset.graphs[index]):
                 for key, value in path[1].items():
                     if value == self.kernel.attributes[shap_feature_index][2]:
                         paths.append((*sorted((path[0], key)), value))
@@ -92,8 +93,8 @@ class Model:
             paths = list(set(paths))
             paths_in_graph = []
             for path in paths:
-                if self.dataset.graphs[graph_index].nodes(data="label")[path[0]] == self.kernel.attributes[shap_feature_index][0] \
-                    and self.dataset.graphs[graph_index].nodes(data="label")[path[1]] == self.kernel.attributes[shap_feature_index][1]:
+                if self.dataset.graphs[index].nodes(data="label")[path[0]] == self.kernel.attributes[shap_feature_index][0] \
+                    and self.dataset.graphs[index].nodes(data="label")[path[1]] == self.kernel.attributes[shap_feature_index][1]:
                     paths_in_graph.append(path)
 
             return paths_in_graph
@@ -105,10 +106,10 @@ class Model:
 
     def highlight_features(self, graph_index, shap_feature_index, node_size = 80, figsize=10, with_labels=False, all=True):
         features = self.find_features(graph_index, shap_feature_index)
-        
         if features:
+            index = len(self.X_train) + graph_index
             if all:
-                graph = self.dataset.graphs[graph_index]
+                graph = self.dataset.graphs[index]
                 nodes = np.array(graph.nodes())
                 edges = np.array(graph.edges())
                 graph_color_map = [self.dataset.node_color_map[label[1]] for label in graph.nodes(data="label")]
@@ -122,16 +123,16 @@ class Model:
 
                 if type(self.kernel) == type(VertexHistogram()):
                     node_color = []
-                    for key, value in self.dataset.graphs[graph_index].nodes(data="label"):
+                    for key, value in self.dataset.graphs[index].nodes(data="label"):
                         if key in features:
                             node_color.append((1,0,0,1))
                         else:
                             node_color.append(self.dataset.node_color_map[value])
-                    self.dataset.plot_graph(graph_index, node_feature_color=node_color, with_labels=with_labels, node_size=node_size)
+                    self.dataset.plot_graph(index, node_feature_color=node_color, with_labels=with_labels, node_size=node_size)
 
                 elif type(self.kernel) == type(EdgeHistogram()):
-                    edge_color = ['r' if edge in features else 'k' for edge in self.dataset.graphs[graph_index].edges()]
-                    self.dataset.plot_graph(graph_index, edge_color=edge_color, with_labels=with_labels, node_size=node_size)
+                    edge_color = ['r' if edge in features else 'k' for edge in self.dataset.graphs[index].edges()]
+                    self.dataset.plot_graph(index, edge_color=edge_color, with_labels=with_labels, node_size=node_size)
 
                 elif type(self.kernel) == type(Graphlet()):
                     features = [node+i*len(nodes) for i, feature in enumerate(features) for node in feature]
@@ -158,25 +159,25 @@ class Model:
                 elif type(self.kernel) == type(WeisfeilerLehman()):
                     pass
             else:
-                pos = nx.nx_agraph.pygraphviz_layout(self.dataset.graphs[graph_index])
+                pos = nx.nx_agraph.pygraphviz_layout(self.dataset.graphs[index])
                 if type(self.kernel) == type(ShortestPath()):
                     for feature in features:
-                        path = nx.shortest_path(self.dataset.graphs[graph_index], source=feature[0], target=feature[1])
+                        path = nx.shortest_path(self.dataset.graphs[index], source=feature[0], target=feature[1])
                         edge_color_index = []
-                        for index, edge in enumerate(self.dataset.graphs[graph_index].edges()):
+                        for index, edge in enumerate(self.dataset.graphs[index].edges()):
                             for i in range(len(path)-1):
                                 if (path[i], path[i+1]) == edge or (path[i+1], path[i]) == edge:
                                     edge_color_index.append(index)
 
-                        edge_color = ['r' if index in edge_color_index else 'k' for index in range(len(self.dataset.graphs[graph_index].edges()))]
-                        self.dataset.plot_graph(graph_index, edge_color=edge_color, with_labels=with_labels, node_size=node_size)
+                        edge_color = ['r' if index in edge_color_index else 'k' for index in range(len(self.dataset.graphs[index].edges()))]
+                        self.dataset.plot_graph(index, edge_color=edge_color, with_labels=with_labels, node_size=node_size)
 
                 elif type(self.kernel) == type(Graphlet()):
-                    graph = self.dataset.graphs[graph_index]
+                    graph = self.dataset.graphs[index]
                     edge_width = [type[2]+2 for type in graph.edges(data="type")]
                     pos = nx.nx_agraph.pygraphviz_layout(graph)
                     for feature in features:
-                        ax = self.dataset.plot_graph(graph_index, pos=pos, node_size=node_size, with_labels=with_labels)
+                        ax = self.dataset.plot_graph(index, pos=pos, node_size=node_size, with_labels=with_labels)
                         nx.draw(graph.subgraph(feature), pos=pos, node_color="r", node_size=node_size, edge_color="r", width=edge_width, with_labels=with_labels, ax=ax)
                     
         else:
