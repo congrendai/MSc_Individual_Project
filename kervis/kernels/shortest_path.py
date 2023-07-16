@@ -7,7 +7,6 @@ class ShortestPath(Kernel):
 
     def get_feature(self, graph):
         if self.with_labels:
-            pairs = []
             self.node_label_dict = dict(graph.nodes(data="label"))
 
             nodes = list(graph.nodes)
