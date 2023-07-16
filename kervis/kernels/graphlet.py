@@ -29,7 +29,6 @@ class Graphlet(Kernel):
             graphlets_G.add_edges_from(np.array(graphlet.edges())+index*self.k)
 
         plt.figure(figsize=(10, 10), dpi=100)
-        plt.margins(0.0)
         pos = nx.nx_agraph.pygraphviz_layout(graphlets_G)
         nx.draw(graphlets_G, pos=pos, node_color="tab:blue", width=0.5, node_size=node_size)
 

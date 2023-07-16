@@ -189,8 +189,11 @@ class Model:
     def force_plot(self, graph_index):
         shap.plots.force(self.shap_values[graph_index], matplotlib=True)
 
-    def bar_plot(self, graph_index, max_display=None):
-        shap.bar_plot(self.shap_values.values[graph_index], max_display=max_display)
+    def bar_plot(self, graph_index=None, max_display=None):
+        if graph_index == None:
+            shap.plots.bar(self.shap_values, max_display=max_display)
+        else:
+            shap.plots.bar(self.shap_values[graph_index], max_display=max_display)
 
     def waterfall_plot(self, graph_index, max_display=10):
         shap.plots.waterfall(self.shap_values[graph_index], max_display=max_display)
