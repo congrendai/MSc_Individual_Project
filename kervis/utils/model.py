@@ -84,21 +84,22 @@ class Model:
             return graphlets_in_graph
 
         elif type(self.kernel) == type(ShortestPath()):
-            paths = []
-            for path in nx.all_pairs_shortest_path_length(self.dataset.graphs[index]):
-                for key, value in path[1].items():
-                    if value == self.kernel.attributes[shap_feature_index][2]:
-                        paths.append((*sorted((path[0], key)), value))
+            graph = self.dataset.graphs[index]
+            shortest_paths = []
+            for i in range(len(nodes)-1):
+                for j in range(i+1, len(nodes)):
+                    for path in nx.all_shortest_paths(graph, nodes[i], nodes[j]):
+                        shortest_paths.append(path)
 
-            paths = list(set(paths))
+            shortest_paths = [path for path in shortest_paths if len(path)-1 == self.kernel.attributes[shap_feature_index][2]]
+
             paths_in_graph = []
-            for path in paths:
+            for shortest_path in shortest_paths:
                 if self.dataset.graphs[index].nodes(data="label")[path[0]] == self.kernel.attributes[shap_feature_index][0] \
-                    and self.dataset.graphs[index].nodes(data="label")[path[1]] == self.kernel.attributes[shap_feature_index][1]:
-                    paths_in_graph.append(path)
+                    and self.dataset.graphs[index].nodes(data="label")[path[-1]] == self.kernel.attributes[shap_feature_index][1]:
+                    paths_in_graph.append(shortest_path)
 
             return paths_in_graph
-
         
 
         elif type(self.kernel) == type(WeisfeilerLehman()):

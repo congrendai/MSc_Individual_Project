@@ -9,16 +9,18 @@ class ShortestPath(Kernel):
         if self.with_labels:
             pairs = []
             self.node_label_dict = dict(graph.nodes(data="label"))
-            for path in nx.all_pairs_shortest_path_length(graph):
-                # path[0]: target, path[1]: source, length: v
-                pair = [(*sorted((path[0], k)), v) for k,v in path[1].items() if v != 0]
-                pairs.extend(pair)
 
-            # Remove duplicates
-            pairs = list(set(pairs))
+            nodes = list(graph.nodes)
 
-            # Assign node labels to node ids
-            pairs_with_labels = [(self.node_label_dict[pair[0]], self.node_label_dict[pair[1]], pair[2]) for pair in pairs]
+            shortest_paths = []
+            for i in range(len(nodes)-1):
+                for j in range(i+1, len(nodes)):
+                    for path in nx.all_shortest_paths(graph, nodes[i], nodes[j]):
+                        shortest_paths.append(path)
 
-            return pairs_with_labels
+
+            # # Assign node labels to node ids
+            path_with_labels = [(self.node_label_dict[shortest_path[0]], self.node_label_dict[shortest_path[-1]], len(shortest_path)-1) for shortest_path in shortest_paths]
+
+            return path_with_labels
 
