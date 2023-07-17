@@ -128,9 +128,10 @@ class Model:
                     node_color = []
                     for key, value in self.dataset.graphs[index].nodes(data="label"):
                         if key in features:
-                            node_color.append((1,0,0,1))
-                        else:
                             node_color.append(self.dataset.node_color_map[value])
+                        else:
+                            node_color.append((0,0,0,0))
+
                     self.dataset.plot_graph(index, node_feature_color=node_color, with_labels=with_labels, node_size=node_size)
 
                 elif type(self.kernel) == type(EdgeHistogram()):
