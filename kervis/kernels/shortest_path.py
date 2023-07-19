@@ -14,8 +14,12 @@ class ShortestPath(Kernel):
             shortest_paths = []
             for i in range(len(nodes)-1):
                 for j in range(i+1, len(nodes)):
-                    for path in nx.all_shortest_paths(graph, nodes[i], nodes[j]):
-                        shortest_paths.append(path)
+                    try:
+                        # some nodes are isolated from the graph
+                        for path in nx.all_shortest_paths(graph, nodes[i], nodes[j]):
+                            shortest_paths.append(path)
+                    except:
+                        pass
 
 
             # # Assign node labels to node ids

@@ -153,7 +153,6 @@ class Model:
                     nx.draw(G, pos=pos, node_color=node_color, width=edge_width, node_size=node_size, with_labels=with_labels)
                     nx.draw_networkx_edges(G.subgraph(features), pos=pos, edge_color="r", width=sub_edge_width)
 
-
                 elif type(self.kernel) == type(WeisfeilerLehman()):
                     pass
             else:
@@ -171,6 +170,11 @@ class Model:
                     
         else:
             print("No feature found in graph {}".format(graph_index))
+
+    def highlight_all(self, feature_index, node_size = 80, figsize=10, with_labels=False):
+        features = [self.find_features(graph_index, feature_index) for graph_index in range(len(self.X_test))]
+        pass
+
 
     # SHAP plots
     def summary_plot(self, max_display=20):
