@@ -1,6 +1,7 @@
 import shap
 import scipy
 import numpy as np
+import pandas as pd
 import xgboost as xgb
 import networkx as nx
 from sklearn.svm import SVC
@@ -12,19 +13,38 @@ from sklearn.model_selection import train_test_split
 from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, Graphlet, WeisfeilerLehman
 
 class Model:
-    def __init__(self, kernel, dataset, model, test_size=0.2, shuffle=False, seed=None, camp = "coolwarm"):
+    def __init__(self, kernel, dataset, model = 'xgboost', test_size=0.2, shuffle=False, seed=None, camp = "coolwarm"):
         self.kernel = kernel
         self.seed = seed
         self.dataset = dataset
-        if type(self.kernel) == type(VertexHistogram()) or type(self.kernel) == type(EdgeHistogram()):
-            self.kernel.fit_transform(self.dataset.data) 
+        if type(self.kernel) == type(WeisfeilerLehman()):
+            
+            self.kernel.fit_transform(self.dataset.data)
+            features = pd.DataFrame(index=range(len(dataset.data)),columns=range(kernel.n_iter+1))
+
+            # combine all features from different iterations into one dataframe
+            for i in range(kernel.n_iter+1):
+                for j in range(len(dataset.data)):
+                    if type(kernel.X[i].X[j]) == scipy.sparse.csr.csr_matrix:
+                        features.iloc[j,i] = kernel.X[i].X[j].toarray()[0]
+                    else:
+                        features.iloc[j,i] = kernel.X[i].X[j]
+
+            self.WL_matrix = features
+            self.features = features.apply(pd.Series.explode, axis=1).to_numpy()
+            print(self.features.shape)
+
         else:
-            self.kernel.fit_transform(self.dataset.graphs)    
-        
-        self.features = self.kernel.X
-        
-        if type(self.features) == scipy.sparse.csr.csr_matrix:
-            self.features= self.features.toarray()
+            if type(self.kernel) == type(VertexHistogram()) or type(self.kernel) == type(EdgeHistogram()):
+                self.kernel.fit_transform(self.dataset.data) 
+            
+            else:
+                self.kernel.fit_transform(self.dataset.graphs)    
+            
+            self.features = self.kernel.X
+            
+            if type(self.features) == scipy.sparse.csr.csr_matrix:
+                self.features= self.features.toarray()
 
         if -1 in set(self.dataset.y):
                 self.dataset.y = [y if y == 1 else 0 for y in self.dataset.y]
@@ -34,35 +54,31 @@ class Model:
 
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.features, self.dataset.y, test_size=test_size, shuffle=shuffle)
 
-        if model == 'kmeans':
-            self.clf = KMeans(n_init="auto", n_clusters=len(set(self.dataset.y)))
-            self.clf.fit(self.X_train)
-            self.y_pred = self.clf.predict(self.X_test)
+        # if model == 'kmeans':
+        #     self.clf = KMeans(n_init="auto", n_clusters=len(set(self.dataset.y)))
+        #     self.clf.fit(self.X_train)
+        #     self.y_pred = self.clf.predict(self.X_test)
         
-        elif model == 'SVM':
-            self.clf = SVC(kernel='rbf', gamma='auto')
-            self.clf.fit(self.X_train, self.y_train)
-            self.y_pred = self.clf.predict(self.X_test)
+        # elif model == 'svm':
+        #     self.clf = SVC(kernel='rbf', gamma='auto')
+        #     self.clf.fit(self.X_train, self.y_train)
+        #     self.y_pred = self.clf.predict(self.X_test)
 
-        elif model == 'xgboost':
+        if model == 'xgboost':
             self.clf = xgb.XGBClassifier()
             self.clf.fit(self.X_train, self.y_train)
             self.y_pred = self.clf.predict(self.X_test)
         
         else:
-            raise ValueError("Model must be 'kmeans', 'SVM' or 'xgboost'.")
+            raise ValueError("Model must be 'xgboost'.")
 
     def evaluate(self):
         self.evaluator = Evaluator(self)
         self.evaluator.classification_report()
 
-    def explain(self, algorithm="auto"):
-        if algorithm == "permutation":
-            # Use SHAP to explain the model's predictions
-            self.explainer = shap.Explainer(self.clf.predict, self.X_train, algorithm="permutation", seed=self.seed, max_evals=2*self.X_train.shape[1]+1)
-        else:
-            self.explainer = shap.Explainer(self.clf.predict, self.X_train, algorithm=algorithm, seed=self.seed)
-        
+    def explain(self):
+        # Use SHAP to explain the model's predictions
+        self.explainer = shap.Explainer(self.clf.predict, self.X_train, algorithm="permutation", seed=self.seed, max_evals=2*self.X_train.shape[1]+1)
         self.shap_values = self.explainer(self.X_test)
 
     def find_features(self, graph_index, shap_feature_index):

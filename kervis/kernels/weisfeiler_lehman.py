@@ -210,18 +210,25 @@ class WeisfeilerLehman(Kernel):
                 new_graphs.append((Gs_ed[j], new_labels) + extras[j])
             yield new_graphs
 
+            # find feature vectors for each iteration
+            self.iter_dict = []
             for i in range(1, self._n_iter):
                 label_set, WL_labels_inverse, L_temp = set(), dict(), dict()
+                subtree_labels = []
                 for j in range(nx):
                     # Find unique labels and sort
                     # them for both graphs
                     # Keep for each node the temporary
+                    credentials = []
                     L_temp[j] = dict()
                     for v in Gs_ed[j].keys():
                         credential = str(L[j][v]) + "," + \
-                            str(sorted([L[j][n] for n in Gs_ed[j][v].keys()]))
+                            str([L[j][n] for n in Gs_ed[j][v].keys()])
+                        credentials.append(credential)
                         L_temp[j][v] = credential
                         label_set.add(credential)
+                    subtree_labels.append(credentials)
+                self.iter_dict.append(subtree_labels)
 
                 label_list = sorted(list(label_set))
                 for dv in label_list:
