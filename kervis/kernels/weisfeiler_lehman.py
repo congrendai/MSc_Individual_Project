@@ -17,6 +17,8 @@ from grakel.kernels.vertex_histogram import VertexHistogram
 from six import iteritems
 from six import itervalues
 
+import scipy
+from kervis.kernels import VertexHistogram as KV_VertexHistogram
 from collections.abc import Iterable
 from collections import Counter
 
@@ -309,6 +311,54 @@ class WeisfeilerLehman(Kernel):
             old_settings = np.seterr(divide='ignore')
             km = np.nan_to_num(np.divide(km, np.sqrt(np.outer(self._X_diag, self._X_diag))))
             np.seterr(**old_settings)
+
+        # ---------------------------------------------------------------------------------
+        # create a customized feature matrix
+        # To get the data of the first iteration of WL kernel
+        VH = KV_VertexHistogram()
+        VH.fit_transform(X)
+
+        WL_first_iter = []
+        for i in range(len(X)):
+            WL_labels = {}
+            if type(VH.X[i]) == scipy.sparse.csr_matrix:
+                for attribute, x in zip(VH.attributes, VH.X[i].toarray()[0]):
+                    WL_labels[attribute] = x
+            else:
+                for attribute, x in zip(VH.attributes, VH.X[i]):
+                    WL_labels[attribute] = x
+
+            WL_first_iter.append(WL_labels)
+
+        # insert the first iteration data to the beginning of the list
+        self.iter_subtree_list.insert(0, WL_first_iter)
+
+        self.WL_labels = {}
+        self.WL_inv_labels = {}
+        for i in range(len(self._inv_labels)):
+            for key, value in self._inv_labels[i].items():
+                self.WL_labels[value] = key
+                self.WL_inv_labels[key] = value
+
+        # This is a unique list of all the keys in the WL labels to form the feature matrix
+        attributes = list(set([self.WL_inv_labels[key] for iter in self.iter_subtree_list for tree in iter for key in tree.keys()]))
+        self.attributes = [self.WL_labels[key] for key in attributes]
+
+        # create a feature matrix
+        features = np.zeros([len(X), len(self.attributes)])
+
+        # fill in the feature matrix
+        for i in range(len(X)):
+            for j in range(len(self.iter_subtree_list)):
+                for key in self.iter_subtree_list[j][i].keys():
+                    for k in range(len(attributes)):
+                        if self.WL_inv_labels[key] == attributes[k]:
+                            features[i, k] = self.iter_subtree_list[j][i][key]
+
+        # The explicit feature matrix
+        self.X = features
+        # ---------------------------------------------------------------------------------
+
         return km
 
     def transform(self, X):
