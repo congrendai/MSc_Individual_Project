@@ -18,6 +18,7 @@ from six import iteritems
 from six import itervalues
 
 from collections.abc import Iterable
+from collections import Counter
 
 class WeisfeilerLehman(Kernel):
     """Compute the Weisfeiler Lehman Kernel.
@@ -210,8 +211,9 @@ class WeisfeilerLehman(Kernel):
                 new_graphs.append((Gs_ed[j], new_labels) + extras[j])
             yield new_graphs
 
+            # -----------------------------------------------------------------
             # find feature vectors for each iteration
-            self.iter_dict = []
+            self.iter_subtree_list = []
             for i in range(1, self._n_iter):
                 label_set, WL_labels_inverse, L_temp = set(), dict(), dict()
                 subtree_labels = []
@@ -224,12 +226,13 @@ class WeisfeilerLehman(Kernel):
                     for v in Gs_ed[j].keys():
                         credential = str(L[j][v]) + "," + \
                             str([L[j][n] for n in Gs_ed[j][v].keys()])
-                        credentials.append(credential)
                         L_temp[j][v] = credential
                         label_set.add(credential)
-                    subtree_labels.append(credentials)
-                self.iter_dict.append(subtree_labels)
-
+                        credentials.append(credential)
+                    subtree_labels.append(dict(Counter(credentials)))
+                self.iter_subtree_list.append(subtree_labels)
+            # -----------------------------------------------------------------
+            
                 label_list = sorted(list(label_set))
                 for dv in label_list:
                     WL_labels_inverse[dv] = label_count
@@ -513,3 +516,5 @@ def efit_transform(object, data):
 def etransform(object, data):
     """Transform an object on data."""
     return object.transform(data)
+
+

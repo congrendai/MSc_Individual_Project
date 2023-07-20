@@ -12,6 +12,11 @@ class Graphlet(Kernel):
         else:
             self.graphlets = [g for g in nx.graph_atlas_g() if len(g.nodes())==self.k]
 
+        # sample graphlet to approximate the real distributaion of graphlets
+        self.sample_graphlets = []
+
+
+
     def get_feature(self, graph):
         feature = []
         C = combinations(list(graph), self.k)
