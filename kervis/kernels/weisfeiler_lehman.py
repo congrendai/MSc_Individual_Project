@@ -227,7 +227,7 @@ class WeisfeilerLehman(Kernel):
                     L_temp[j] = dict()
                     for v in Gs_ed[j].keys():
                         credential = str(L[j][v]) + "," + \
-                            str([L[j][n] for n in Gs_ed[j][v].keys()])
+                            str(sorted([L[j][n] for n in Gs_ed[j][v].keys()]))
                         L_temp[j][v] = credential
                         label_set.add(credential)
                         credentials.append(credential)
