@@ -5,10 +5,10 @@ import pandas as pd
 import xgboost as xgb
 import networkx as nx
 from sklearn.svm import SVC
-from sklearn.cluster import KMeans
 from itertools import combinations
 from matplotlib import pyplot as plt
 from kervis.utils.evaluator import Evaluator
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, Graphlet, WeisfeilerLehman
 
@@ -37,23 +37,20 @@ class Model:
 
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.features, self.dataset.y, test_size=test_size, shuffle=shuffle)
 
-        if model == 'kmeans':
-            self.clf = KMeans(n_init="auto", n_clusters=len(set(self.dataset.y)))
-            self.clf.fit(self.X_train)
-            self.y_pred = self.clf.predict(self.X_test)
+        if model == 'logistic':
+            self.clf = LogisticRegression(max_iter=1000)
         
         elif model == 'svm':
             self.clf = SVC(kernel='rbf', gamma='auto')
-            self.clf.fit(self.X_train, self.y_train)
-            self.y_pred = self.clf.predict(self.X_test)
 
         elif model == 'xgboost':
             self.clf = xgb.XGBClassifier()
-            self.clf.fit(self.X_train, self.y_train)
-            self.y_pred = self.clf.predict(self.X_test)
         
         else:
-            raise ValueError('Model must be "svm", "kmeans", or "xgboost".')
+            raise ValueError('Model must be "svm", "logistic", or "xgboost".')
+
+        self.clf.fit(self.X_train, self.y_train)
+        self.y_pred = self.clf.predict(self.X_test)
 
     def evaluate(self):
         self.evaluator = Evaluator(self)
