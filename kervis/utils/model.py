@@ -170,11 +170,6 @@ class Model:
         else:
             print("No feature found in graph {}".format(graph_index))
 
-    def highlight_all(self, feature_index, node_size = 80, figsize=10, with_labels=False):
-        features = [self.find_features(graph_index, feature_index) for graph_index in range(len(self.X_test))]
-        pass
-
-
     # SHAP plots
     def summary_plot(self, max_display=20):
         shap.plots.beeswarm(self.shap_values, max_display=max_display)

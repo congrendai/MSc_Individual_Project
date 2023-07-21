@@ -5,7 +5,7 @@ from itertools import combinations
 from matplotlib import pyplot as plt
 
 class Graphlet(Kernel):
-    def __init__(self, k = 4, connected = True):
+    def __init__(self, k = 3, connected = False):
         self.k = k
         if connected:
             self.graphlets = [g for g in nx.graph_atlas_g() if len(g.nodes())==self.k and len(list(nx.connected_components(g)))==1]
