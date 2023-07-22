@@ -3,13 +3,53 @@ from collections import Counter
 from multiprocessing import Pool
 
 class Kernel():
+    """
+    This is the base class for all kernels
+
+    Parameters
+    ----------
+    None
+
+    Attributes
+    ----------
+        X: numpy.ndarray
+            the feature matrix
+        attributes: list
+            a list of the attributes of the feature matrix
+    """
     def __init__(self):
+        # this function is used to initialize the kernel
         pass
 
-    def get_feature(self):
+    def get_feature(self, graph):
+        """
+        this function is used to get the feature of a graph
+
+        Parameters
+        ----------
+        graph: networkx.classes.graph.Graph
+            a graph of the dataset
+
+        Returns
+        -------
+        feature: list
+            a list of the features of the graph
+        """ 
         pass
 
     def fit_transform(self, G):
+        """
+        this function is used to get the feature matrix of the dataset
+
+        Parameters
+        ----------
+        G: list
+            a list of the graphs of the dataset
+
+        Returns
+        -------
+        None
+        """
         with Pool() as pool:
             results = pool.map(self.get_feature, G)
             features = [result for result in results]

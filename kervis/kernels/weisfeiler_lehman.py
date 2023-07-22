@@ -22,6 +22,11 @@ from kervis.kernels import VertexHistogram as KV_VertexHistogram
 from collections.abc import Iterable
 from collections import Counter
 
+"""
+The code is from grakel.kernels.weisfeiler_lehman.py
+The code is modified to return the attributes of the feature matrix
+"""
+
 class WeisfeilerLehman(Kernel):
     """Compute the Weisfeiler Lehman Kernel.
 

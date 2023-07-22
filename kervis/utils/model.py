@@ -101,7 +101,7 @@ class Model:
             return paths_in_graph
         
         elif type(self.kernel) == type(WeisfeilerLehman()):
-            print("No need to find the feature vectors of the Weisfeiler-Lehman kernel")
+            print(self.kernel.WL_labels[shap_feature_index])
 
     def highlight_features(self, graph_index, shap_feature_index, node_size = 80, sub_edge_width = 3, figsize=10, with_labels=False, all=True):
         features = self.find_features(graph_index, shap_feature_index)
@@ -150,7 +150,7 @@ class Model:
                     nx.draw_networkx_edges(G.subgraph(features), pos=pos, edge_color="r", width=sub_edge_width)
 
                 elif type(self.kernel) == type(WeisfeilerLehman()):
-                    print("Cannot highlight the Weisfeiler-Lehman kernel")
+                    print("Cannot highlight features of the Weisfeiler-Lehman kernel")
             else:
                 pos = nx.nx_agraph.pygraphviz_layout(graph)
                 if type(self.kernel) == type(ShortestPath()):

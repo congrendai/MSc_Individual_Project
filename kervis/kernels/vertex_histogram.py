@@ -8,6 +8,10 @@ from scipy.sparse import csr_matrix
 from grakel.kernels import VertexHistogram
 from six.moves.collections_abc import Iterable
 
+"""
+The code is from grakel.kernels.vertex_histogram.py
+The code is modified to return the attributes of the feature matrix
+"""
 
 class VertexHistogram(VertexHistogram):
     def __init__(self, n_jobs=None, normalize=False, verbose=False, sparse='auto'):

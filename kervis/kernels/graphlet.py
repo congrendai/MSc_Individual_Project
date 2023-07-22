@@ -5,17 +5,34 @@ from itertools import combinations
 from matplotlib import pyplot as plt
 
 class Graphlet(Kernel):
+    """
+    This class is for graphlet kernel
+
+    Parameters
+    ----------
+    k: int
+        the size of the graphlets
+
+    connected: bool
+        whether to use connected graphlets only
+
+    Attributes
+    ----------
+    X: numpy.ndarray
+        the feature matrix
+
+    attributes: list
+        a list of the attributes of the feature matrix
+        
+    graphlets: list
+        a list of the graphlets
+    """
     def __init__(self, k = 3, connected = False):
         self.k = k
         if connected:
             self.graphlets = [g for g in nx.graph_atlas_g() if len(g.nodes())==self.k and len(list(nx.connected_components(g)))==1]
         else:
             self.graphlets = [g for g in nx.graph_atlas_g() if len(g.nodes())==self.k]
-
-        # sample graphlet to approximate the real distributaion of graphlets
-        self.sample_graphlets = []
-
-
 
     def get_feature(self, graph):
         feature = []
@@ -28,6 +45,18 @@ class Graphlet(Kernel):
         return feature
 
     def plot_all_graphlet(self, node_size = 5):
+        """
+        This function is used to plot all graphlets
+
+        Parameters
+        ----------
+        node_size: int
+            the size of the nodes in the plot
+
+        Returns
+        -------
+        None
+        """
         graphlets_G = nx.Graph()
         for index, graphlet in enumerate(self.graphlets):  
             graphlets_G.add_nodes_from(np.array(graphlet.nodes())+index*self.k)
@@ -38,6 +67,21 @@ class Graphlet(Kernel):
         nx.draw(graphlets_G, pos=pos, node_color="tab:blue", width=0.5, node_size=node_size)
 
     def plot_graphlet(self, graphlet_index, node_size = 80):
+        """
+        This function is used to plot a graphlet
+
+        Parameters
+        ----------
+        graphlet_index: int
+            the index of the graphlet to plot
+
+        node_size: int
+            the size of the nodes in the plot
+
+        Returns
+        -------
+        None
+        """
         graphlet = self.graphlets[graphlet_index]
         plt.figure(figsize=(10, 10), dpi=300)
         plt.margins(0.0)

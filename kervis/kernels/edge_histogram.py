@@ -8,6 +8,11 @@ from scipy.sparse import csr_matrix
 from grakel.kernels import EdgeHistogram
 from six.moves.collections_abc import Iterable
 
+"""
+The code is from grakel.kernels.edge_histogram.py
+The code is modified to return the attributes of the feature matrix
+"""
+
 class EdgeHistogram(EdgeHistogram):
     def __init__(self, n_jobs=None, normalize=False, verbose=False, sparse='auto'):
         super().__init__(n_jobs, normalize, verbose, sparse)
