@@ -4,10 +4,12 @@ import shutil
 import zipfile
 import requests
 import numpy as np
+import pandas as pd
 from grakel.graph import Graph
 from collections import Counter
 from sklearn.utils import Bunch
 from grakel.datasets import base
+from kervis.utils.model import Model
 from grakel.datasets import fetch_dataset
 
 
@@ -385,3 +387,20 @@ def fetch_dataset(
 
 fetch_dataset = fetch_dataset
 
+def get_cv_dataframe(VH, EH, SP, GL, WL, dataset):
+    kernels = [VH, EH, SP, GL, WL]
+    kernel_names = ["VH", "EH", "SP", "GL", "WL"]
+    models = ["logistic", "svm", "xgboost"]
+
+    df = pd.DataFrame(columns = ["Kernel", "Model", "Score"])
+
+    for kernel, kernel_name in zip(kernels, kernel_names):
+        for model in models:
+            temp_df = pd.DataFrame(columns = ["Kernel", "Model", "Score"])
+            cv_scores = Model(kernel, dataset, model).cv_scores
+            temp_df["Score"] = cv_scores
+            temp_df["Model"] = [model] * len(cv_scores)
+            temp_df["Kernel"] = [kernel_name] * len(cv_scores)
+            df = pd.concat([df, temp_df])
+
+    return df

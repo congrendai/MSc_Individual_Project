@@ -27,7 +27,7 @@ class Graphlet(Kernel):
     graphlets: list
         a list of the graphlets
     """
-    def __init__(self, k = 3, connected = True):
+    def __init__(self, k = 3, connected = False):
         self.k = k
         if connected:
             self.graphlets = [g for g in nx.graph_atlas_g() if len(g.nodes())==self.k and len(list(nx.connected_components(g)))==1]

@@ -1,7 +1,6 @@
 import shap
 import scipy
 import numpy as np
-import pandas as pd
 import xgboost as xgb
 import networkx as nx
 from sklearn.svm import SVC
