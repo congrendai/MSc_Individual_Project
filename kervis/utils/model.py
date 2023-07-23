@@ -8,11 +8,80 @@ from sklearn.svm import SVC
 from itertools import combinations
 from matplotlib import pyplot as plt
 from kervis.utils.evaluator import Evaluator
+from sklearn.model_selection import cross_val_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, Graphlet, WeisfeilerLehman
 
 class Model:
+    """
+    This class is combined with the Kernel class and Dataset class to build a model
+
+    Parameters
+    ----------
+    kernel: kervis.kernels.Kernel
+        the kernel to be used
+
+    dataset: kervis.datasets.Dataset
+        the dataset to be used
+
+    model: str
+        the model to be used
+
+    test_size: float (default: 0.2)
+        the size of the test set
+
+    shuffle: bool (default: False)
+        whether to shuffle the dataset before splitting
+
+    seed: int (default: None)
+        the seed for SHAP estimates Shapley values
+
+    camp: str (default: "coolwarm")
+        the color map for node colors
+
+    Attributes
+    ----------
+    kernel: kervis.kernels.Kernel
+        the kernel to be used
+
+    dataset: kervis.datasets.Dataset
+        the dataset to be used
+
+    features: numpy.ndarray
+        the feature matrix
+
+    X_train: numpy.ndarray
+        the feature matrix of the training set
+
+    X_test: numpy.ndarray
+        the feature matrix of the test set
+
+    y_train: numpy.ndarray
+        the labels of the training set
+    
+    y_test: numpy.ndarray
+        the labels of the test set
+
+    clf: sklearn.svm.SVC or sklearn.linear_model.LogisticRegression or xgboost.XGBClassifier
+        the classifier to be used
+
+    y_pred: numpy.ndarray
+        the predicted labels of the test set
+
+    cv_scores: numpy.ndarray
+        the cross validation scores
+
+    evaluator: kervis.utils.evaluator.Evaluator
+        contains the evaluation results
+
+    explainer: shap.Explainer
+        the "permutation" explainer from SHAP
+
+    shap_values: numpy.ndarray
+        the Shapley values of the test set
+    """
+
     def __init__(self, kernel, dataset, model, test_size=0.2, shuffle=False, seed=None, camp = "coolwarm"):
         self.kernel = kernel
         self.seed = seed
@@ -52,6 +121,10 @@ class Model:
         self.clf.fit(self.X_train, self.y_train)
         self.y_pred = self.clf.predict(self.X_test)
 
+        # for calculate cross-validatopm scores
+        self.cv_scores = cross_val_score(self.clf, self.features, self.dataset.y, cv=10)
+        
+
     def evaluate(self):
         self.evaluator = Evaluator(self)
         self.evaluator.classification_report()
@@ -60,7 +133,6 @@ class Model:
         # Use SHAP to explain the model's predictions
         self.explainer = shap.Explainer(self.clf.predict, self.X_train, algorithm="permutation", seed=self.seed, max_evals=2*self.X_train.shape[1]+1)
         self.shap_values = self.explainer(self.X_test)
-
 
     def find_features(self, graph_index, shap_feature_index):
         index = len(self.X_train) + graph_index
