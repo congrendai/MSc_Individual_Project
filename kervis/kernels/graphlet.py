@@ -13,7 +13,7 @@ class Graphlet(Kernel):
     k: int
         the size of the graphlets
 
-    connected: bool (default: True)
+    connected: bool (default: False)
         whether to use connected graphlets only
 
     Attributes
