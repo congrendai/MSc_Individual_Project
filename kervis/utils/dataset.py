@@ -5,6 +5,72 @@ from kervis.utils.utils import read_data
 from kervis.utils.utils import fetch_dataset
 
 class Dataset():
+    """
+    This class is for augmenting the fetch_dataset function in kervis.utils.utils
+
+    Parameters
+    ----------
+    name: str
+        the name of the dataset
+
+    cmap: str (default: "coolwarm")
+
+    from_TUDataset: bool (default: True)
+        whether to fetch the dataset from TUDataset
+
+    verbose: bool (default: False)
+        whether to print the information of the dataset
+
+    data_home: str (default: None)
+        the path to the directory containing the datasets
+
+    download_if_missing: bool (default: True)
+        whether to download the dataset if it is not found
+
+    with_classes: bool (default: True)
+        whether to fetch the dataset with classes
+
+    produce_labels_nodes: bool (default: False)
+        whether to produce labels for nodes
+
+    prefer_attr_nodes: bool (default: False)
+        whether to prefer node attributes
+
+    prefer_attr_edges: bool (default: False)
+        whether to prefer edge attributes
+
+    as_graphs: bool (default: False)
+        whether to return the dataset as a list of networkx graphs
+
+    Attributes
+    ----------
+    metadata: dict
+        the metadata of the dataset
+
+    readme: str
+        the readme file of the dataset
+
+    data: list
+        the data of the dataset, same as the data from of fetch_dataset()
+
+    graphs: list
+        the data in the form of networkx.Graph of the dataset, used for SP and GL kernels
+
+    y: list
+        the target values of the dataset
+
+    G: networkx.Graph
+        the data in the form of networkx of the dataset, used for WL kernel
+
+    node_labels: list
+        the node labels of the dataset
+
+    node_color_map: dict
+        the color map of the node labels
+
+    edge_labels: list
+        the edge labels of the dataset    
+    """
     def __init__(self, name, cmap="coolwarm", from_TUDataset=True,
                  verbose=False, data_home=None, download_if_missing=True,
                  with_classes=True, produce_labels_nodes=False,
@@ -44,6 +110,7 @@ class Dataset():
         if self.metadata[name]["nl"] == True:
             self.node_labels = list(set(label for g in self.data for label in g[1].values()))
             if self.name == "AIDS":
+                # AIDS has too many nodes, so it uses two color maps
                 node_cmap_1 = plt.get_cmap("tab20", 20)
                 node_cmap_2 = plt.get_cmap("tab20b", 18)
                 self.node_color_map_1 = {self.node_labels[index]: node_cmap_1(index) for index in range(len(self.node_labels[:20]))}
