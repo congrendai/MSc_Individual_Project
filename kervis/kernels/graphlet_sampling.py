@@ -152,7 +152,7 @@ class GraphletSampling(Kernel):
 
         plt.figure(figsize=(10, 10), dpi=300)
         pos = nx.nx_agraph.pygraphviz_layout(graphlets_G)
-        nx.draw(graphlets_G, pos=pos, node_color="tab:blue", width=0.5, node_size=node_size)
+        nx.draw(graphlets_G, pos=pos, node_color="tab:blue", width=1, node_size=node_size)
 
     def plot_graphlet(self, graphlet_index, node_size = 80):
         """
@@ -513,7 +513,11 @@ class GraphletSampling(Kernel):
                                     local_values[(i, idx)] = 1
                                     self._Y_graph_bins[start_Y] = sg
             
+            # convert _graph_bins into networkx graphs
             self._networkx_graph_bins = {key:convert_to_networkx(str(value)) for key, value in self._graph_bins.items()}
+
+            # add the attributes to the graphlet kernels
+            self.attributes = list(self._graph_bins.keys())
 
             if i == -1:
                 raise ValueError('parsed input is empty')

@@ -87,12 +87,15 @@ class Model:
         self.dataset = dataset
 
         if type(self.kernel) == type(ShortestPath()):
-            self.kernel.fit_transform(self.dataset.graph) 
+            self.kernel.fit_transform(self.dataset.graphs) 
         
         else:
             self.kernel.fit_transform(self.dataset.data)    
         
-        self.features = self.kernel.X
+        if type(self.kernel) == type(GraphletSampling()):
+            self.features = self.kernel._phi_X
+        else:
+            self.features = self.kernel.X
             
         if type(self.features) == scipy.sparse.csr_matrix:
             self.features= self.features.toarray()
@@ -145,12 +148,12 @@ class Model:
         elif type(self.kernel) == type(EdgeHistogram()):
             return [(u, v) for u, v, t in self.dataset.graphs[index].edges(data="type") if t == self.kernel.attributes[shap_feature_index]]
         
-        elif type(self.kernel) == type(Graphlet()):
+        elif type(self.kernel) == type(GraphletSampling()):
             graphlets_in_graph = []
             graph = self.dataset.graphs[index]
             C = combinations(list(graph), self.kernel.k)
             for c in C:
-                if nx.is_isomorphic(graph.subgraph(c), self.kernel.graphlets[self.kernel.attributes[shap_feature_index]]):
+                if nx.is_isomorphic(graph.subgraph(c), self.kernel._networkx_graph_bins[self.kernel.attributes[shap_feature_index]]):
                     graphlets_in_graph.append(c)
 
             return graphlets_in_graph
@@ -209,7 +212,7 @@ class Model:
                     edge_color = ['r' if edge in features else 'k' for edge in self.dataset.graphs[index].edges()]
                     self.dataset.plot_graph(index, edge_color=edge_color, with_labels=with_labels, node_size=node_size)
 
-                elif type(self.kernel) == type(Graphlet()):
+                elif type(self.kernel) == type(GraphletSampling()):
                     features = [node+i*len(nodes) for i, feature in enumerate(features) for node in feature]
                     plt.figure(figsize=(figsize, figsize), dpi=100)
                     plt.margins(0.0)
@@ -233,7 +236,7 @@ class Model:
                         ax = self.dataset.plot_graph(index, node_size=node_size, with_labels=with_labels)
                         nx.draw_networkx_edges(graph.subgraph(feature), pos=pos, edge_color="r", width=sub_edge_width, ax=ax)
 
-                elif type(self.kernel) == type(Graphlet()):
+                elif type(self.kernel) == type(GraphletSampling()):
                     edge_width = [type[2]+2 for type in graph.edges(data="type")]
                     for feature in features:
                         ax = self.dataset.plot_graph(index, pos=pos, node_size=node_size, with_labels=with_labels)
