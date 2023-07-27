@@ -72,6 +72,7 @@ class WeisfeilerLehman(Kernel):
             n_jobs=n_jobs, verbose=verbose, normalize=normalize)
 
         self.n_iter = n_iter
+        self.name = "WL_"+ str(self.n_iter)
         self.base_graph_kernel = base_graph_kernel
         self._initialized.update({"n_iter": False, "base_graph_kernel": False})
         self._base_graph_kernel = None

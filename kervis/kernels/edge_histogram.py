@@ -16,6 +16,7 @@ The code is modified to return the attributes of the feature matrix
 class EdgeHistogram(EdgeHistogram):
     def __init__(self, n_jobs=None, normalize=False, verbose=False, sparse='auto'):
         super().__init__(n_jobs, normalize, verbose, sparse)
+        self.name = "EH"
 
     def parse_input(self, X):
         """Parse and check the given input for EH kernel.

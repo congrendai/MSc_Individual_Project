@@ -387,9 +387,8 @@ def fetch_dataset(
 
 fetch_dataset = fetch_dataset
 
-def get_cv_dataframe(VH, EH, SP, GL, WL, dataset):
-    kernels = [VH, EH, SP, GL, WL]
-    kernel_names = ["VH", "EH", "SP", "GL", "WL"]
+def get_cv_dataframe(kernels, dataset):
+    kernel_names = [kernel.name for kernel in kernels]
     models = ["logistic", "svm", "xgboost"]
 
     df = pd.DataFrame(columns = ["Kernel", "Model", "Score"])

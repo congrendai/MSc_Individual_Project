@@ -10,7 +10,7 @@ from kervis.utils.evaluator import Evaluator
 from sklearn.model_selection import cross_val_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, Graphlet, WeisfeilerLehman
+from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, GraphletSampling, WeisfeilerLehman
 
 class Model:
     """
@@ -86,11 +86,11 @@ class Model:
         self.seed = seed
         self.dataset = dataset
 
-        if type(self.kernel) == type(VertexHistogram()) or type(self.kernel) == type(EdgeHistogram()) or type(self.kernel) == type(WeisfeilerLehman()):
-            self.kernel.fit_transform(self.dataset.data) 
+        if type(self.kernel) == type(ShortestPath()):
+            self.kernel.fit_transform(self.dataset.graph) 
         
         else:
-            self.kernel.fit_transform(self.dataset.graphs)    
+            self.kernel.fit_transform(self.dataset.data)    
         
         self.features = self.kernel.X
             
@@ -106,7 +106,7 @@ class Model:
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.features, self.dataset.y, test_size=test_size, shuffle=shuffle)
 
         if model == 'logistic':
-            self.clf = LogisticRegression(max_iter=1000)
+            self.clf = LogisticRegression(max_iter=200000)
         
         elif model == 'svm':
             self.clf = SVC(kernel='rbf', gamma='auto')

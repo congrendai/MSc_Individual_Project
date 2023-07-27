@@ -23,6 +23,7 @@ class ShortestPath(Kernel):
     """
     def __init__(self, with_labels = True):
         self.with_labels = with_labels
+        self.name = "SP"
 
     def get_feature(self, graph):
         """
