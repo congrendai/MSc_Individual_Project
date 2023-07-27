@@ -122,9 +122,13 @@ class Model:
 
         # for calculate cross-validatopm scores
         self.cv_scores = cross_val_score(self.clf, self.features, self.dataset.y, cv=10)
-        
+    
+    def sparsity(self):
+        # Calculate the sparsity of the feature matrix
+        return 1 - np.count_nonzero(self.features) / self.features.size
 
     def evaluate(self):
+        # Evaluate the model
         self.evaluator = Evaluator(self)
         self.evaluator.classification_report()
 
