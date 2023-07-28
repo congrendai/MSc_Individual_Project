@@ -387,19 +387,42 @@ def fetch_dataset(
 
 fetch_dataset = fetch_dataset
 
-def get_cv_dataframe(kernels, dataset):
+def get_cv_dataframe(kernels, dataset, score = "mean"):
     kernel_names = [kernel.name for kernel in kernels]
     models = ["logistic", "svm", "xgboost"]
 
-    df = pd.DataFrame(columns = ["Kernel", "Model", "Score"])
+    if score == "mean":
+        df = pd.DataFrame(columns = ["Kernel", "Model", "Mean"])
+        for kernel, kernel_name in zip(kernels, kernel_names):
+            for model in models:
+                temp_df = pd.DataFrame(columns = ["Kernel", "Model", "Mean"])
+                temp_df["Mean"] = [Model(kernel, dataset, model).cv_scores.mean()]
+                temp_df["Model"] = [model]
+                temp_df["Kernel"] = [kernel_name]
+                df = pd.concat([df, temp_df])
 
-    for kernel, kernel_name in zip(kernels, kernel_names):
-        for model in models:
-            temp_df = pd.DataFrame(columns = ["Kernel", "Model", "Score"])
-            cv_scores = Model(kernel, dataset, model).cv_scores
-            temp_df["Score"] = cv_scores
-            temp_df["Model"] = [model] * len(cv_scores)
-            temp_df["Kernel"] = [kernel_name] * len(cv_scores)
-            df = pd.concat([df, temp_df])
+    elif score == "median":
+        df = pd.DataFrame(columns = ["Kernel", "Model", "Median"])
+        for kernel, kernel_name in zip(kernels, kernel_names):
+            for model in models:
+                temp_df = pd.DataFrame(columns = ["Kernel", "Model", "Median"])
+                temp_df["Median"] = [np.median(Model(kernel, dataset, model).cv_scores)]
+                temp_df["Model"] = [model]
+                temp_df["Kernel"] = [kernel_name]
+                df = pd.concat([df, temp_df])
+    
+    elif score == "all":
+        df = pd.DataFrame(columns = ["Kernel", "Model", "Score"])
+        for kernel, kernel_name in zip(kernels, kernel_names):
+            for model in models:
+                temp_df = pd.DataFrame(columns = ["Kernel", "Model", "Score"])
+                cv_scores = Model(kernel, dataset, model).cv_scores
+                temp_df["Score"] = cv_scores
+                temp_df["Model"] = [model] * len(cv_scores)
+                temp_df["Kernel"] = [kernel_name] * len(cv_scores)
+                df = pd.concat([df, temp_df])
+
+    else:
+        raise ValueError("Score must be either 'mean', 'median' or 'all'.")
 
     return df

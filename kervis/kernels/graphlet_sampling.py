@@ -25,6 +25,12 @@ from builtins import range
 import matplotlib.pyplot as plt
 import networkx as nx
 
+"""
+The code is from grakel.kernels.graphlet_sampling.py
+The code is modified to return the attributes of the feature matrix
+The code is modified to visulize the graphlets and store the graphlets into a attribute called _networkx_graph_bins
+"""
+
 
 class GraphletSampling(Kernel):
     r"""The graphlet sampling kernel.
