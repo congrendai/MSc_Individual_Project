@@ -10,7 +10,7 @@ from kervis.utils.evaluator import Evaluator
 from sklearn.model_selection import cross_val_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, GraphletSampling, WeisfeilerLehman
+from kervis.kernels import VertexHistogram, EdgeHistogram, ShortestPath, Graphlet, GraphletSampling, WeisfeilerLehman
 
 class Model:
     """
@@ -86,7 +86,7 @@ class Model:
         self.seed = seed
         self.dataset = dataset
 
-        if type(self.kernel) == type(ShortestPath()):
+        if type(self.kernel) == type(ShortestPath()) or type(self.kernel) == type(Graphlet()):
             self.kernel.fit_transform(self.dataset.graphs) 
         
         else:
@@ -123,8 +123,9 @@ class Model:
         self.clf.fit(self.X_train, self.y_train)
         self.y_pred = self.clf.predict(self.X_test)
 
+    def cross_validate(self, cv=10):
         # for calculate cross-validatopm scores
-        self.cv_scores = cross_val_score(self.clf, self.features, self.dataset.y, cv=10)
+        self.cv_scores = cross_val_score(self.clf, self.features, self.dataset.y, cv=cv)
     
     def sparsity(self):
         # Calculate the sparsity of the feature matrix
