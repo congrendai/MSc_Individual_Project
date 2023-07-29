@@ -25,9 +25,22 @@ class Evaluator():
         return f1_score(self.model.y_test, self.model.y_pred)
     
     def confusion_matrix(self):
-        ax = sns.heatmap(confusion_matrix(self.model.y_test, self.model.y_pred), 
-                    annot=True, cmap='Blues', linewidth=.5)
-        ax.set_xlabel('Predicted labels');ax.set_ylabel('True labels')
+        # change the figure size
+        plt.figure(figsize=(5, 4))
+        cm = confusion_matrix(self.model.y_test, self.model.y_pred)
+        ax = sns.heatmap(cm, 
+                    annot=[[f"TP\n{cm[0][0]:.0f}", f"FN\n{cm[0][1]:.0f}"], [f"FP\n{cm[1][0]:.0f}", f"TN\n{cm[1][1]:.0f}"]], fmt='', cmap='Blues', linewidth=.5)
+        ax.set_xlabel('Predicted labels')
+        ax.xaxis.set_label_position('top')
+        ax.set_ylabel('True labels')
+        # remove xticks and yticks label
+        ax.set_xticklabels(['Positive', 'Negative'])
+        # set the xticks label to the top
+        ax.xaxis.set_ticks_position('top')
+        ax.set_yticklabels(['Positive', 'Negative'], rotation=90, va='center')
+        # remove the color bar on the right side
+        ax.collections[0].colorbar.remove()
+        plt.show()
     
     def classification_report(self):
         print(classification_report(self.model.y_test, self.model.y_pred))
