@@ -45,16 +45,16 @@ class Evaluator():
     def classification_report(self):
         print(classification_report(self.model.y_test, self.model.y_pred))
     
-    def roc_curve(self):
+    def roc_curve(self, color = 'darkorange'):
         fpr, tpr, thresholds = roc_curve(self.model.y_test, self.model.y_pred)
         roc_auc = auc(fpr, tpr)
-        plt.plot(fpr, tpr, color='darkorange', label='ROC curve (area = %0.2f)' % roc_auc)
+        plt.plot(fpr, tpr, color=color, label=self.model.name +' (area = %0.2f)' % roc_auc)
         plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
         plt.xlabel('False Positive Rate')
         plt.ylabel('True Positive Rate')
         plt.title('Receiver Operating Characteristic (ROC)')
         plt.legend(loc="lower right")
-        plt.show()
+        # plt.show()
 
     
     def precision_recall_curve(self):

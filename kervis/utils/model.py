@@ -50,6 +50,9 @@ class Model:
     features: numpy.ndarray
         the feature matrix
 
+    name: str
+        the name of the model, which is the combination of the kernel name, dataset name, and method name
+
     X_train: numpy.ndarray
         the feature matrix of the training set
 
@@ -85,6 +88,7 @@ class Model:
         self.kernel = kernel
         self.seed = seed
         self.dataset = dataset
+        self.name = "{} {} {}".format(kernel.name, dataset.name, model)
 
         if type(self.kernel) == type(ShortestPath()) or type(self.kernel) == type(Graphlet()):
             self.kernel.fit_transform(self.dataset.graphs) 
