@@ -1,11 +1,8 @@
 import seaborn as sns
 from matplotlib import pyplot as plt
-from sklearn.metrics import f1_score
-from sklearn.metrics import recall_score
 from sklearn.metrics import accuracy_score
-from sklearn.metrics import precision_score
-from sklearn.metrics import confusion_matrix, classification_report
-from sklearn.metrics import roc_curve, auc, precision_recall_curve
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import roc_curve, auc
 
 
 class Evaluator():
@@ -14,15 +11,6 @@ class Evaluator():
 
     def accuracy(self):
         return accuracy_score(self.model.y_test, self.model.y_pred)
-    
-    def precision(self):
-        return precision_score(self.model.y_test, self.model.y_pred)
-    
-    def recall(self):
-        return recall_score(self.model.y_test, self.model.y_pred)
-    
-    def f1(self):
-        return f1_score(self.model.y_test, self.model.y_pred)
     
     def confusion_matrix(self):
         # change the figure size
@@ -55,13 +43,3 @@ class Evaluator():
         plt.title('Receiver Operating Characteristic (ROC)')
         plt.legend(loc="lower right")
         # plt.show()
-
-    
-    def precision_recall_curve(self):
-        precision, recall, thresholds = precision_recall_curve(self.model.y_test, self.model.y_pred)
-        plt.plot(recall, precision, label='Precision-Recall Curve')
-        plt.xlabel('Recall')
-        plt.ylabel('Precision')
-        plt.title('Precision-Recall Curve')
-        plt.legend(loc='lower left')
-        plt.show()
