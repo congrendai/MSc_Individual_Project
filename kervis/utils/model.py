@@ -88,7 +88,7 @@ class Model:
         self.kernel = kernel
         self.seed = seed
         self.dataset = dataset
-        self.name = "{} {} {}".format(kernel.name, dataset.name, model)
+        self.name = "{} {}".format(self.kernel.name, self.dataset.name)
 
         if type(self.kernel) == type(ShortestPath()) or type(self.kernel) == type(Graphlet()):
             self.kernel.fit_transform(self.dataset.graphs) 
@@ -105,7 +105,7 @@ class Model:
             self.features= self.features.toarray()
 
         if -1 in set(self.dataset.y):
-                self.dataset.y = [y if y == 1 else 0 for y in self.dataset.y]
+                self.dataset.y = [0 if y == 1 else 1 for y in self.dataset.y]
                 
         elif 0 not in set(self.dataset.y):
             self.dataset.y = [y-1 for y in self.dataset.y]
@@ -138,7 +138,6 @@ class Model:
     def evaluate(self):
         # Evaluate the model
         self.evaluator = Evaluator(self)
-        self.evaluator.classification_report()
 
     def explain(self):
         # Use SHAP to explain the model's predictions

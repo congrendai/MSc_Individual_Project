@@ -387,6 +387,26 @@ def fetch_dataset(
 fetch_dataset = fetch_dataset
 
 def get_cv_dataframe(kernels, models, dataset):
+    """
+    The function returns a dataframe with the cross validation scores for each
+    kernel and model combination.
+
+    Parameters
+    ----------
+    kernels : list
+        A list of kernels.
+
+    models : list
+        A list of models.
+
+    dataset : str
+        The name of the dataset.
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        A dataframe with the cross validation scores for each kernel and model.
+    """
     kernel_names = [kernel.name for kernel in kernels]
     model_names = models
     
@@ -405,3 +425,29 @@ def get_cv_dataframe(kernels, models, dataset):
     df = df.sort_values(by="Kernel")
 
     return df
+
+def create_models(kernels, dataset, method='xgboost'):
+    """
+    The function returns a dictionary of models for each kernel.
+
+    Parameters
+    ----------
+    kernels : list
+        A list of kernels.
+
+    dataset : str
+        The name of the dataset.
+
+    method : str, default='xgboost'
+        The method to be used for the classification task.
+
+    Returns
+    -------
+    models : dict
+        A dictionary of models for each kernel.
+    """
+    models = {}
+    for kernel in kernels:
+        variable_name = "{}".format(kernel.name)
+        models[variable_name] = Model(kernel, dataset, method)
+    return models
