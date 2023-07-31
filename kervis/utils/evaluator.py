@@ -14,7 +14,7 @@ class Evaluator():
     
     def confusion_matrix(self, path='./plots/result/cm/', cmap='Blues'):
         # change the figure size
-        plt.figure(figsize=(4, 2))
+        plt.figure(figsize=(4, 2), dpi=300)
         cm = confusion_matrix(self.model.y_test, self.model.y_pred)
         ax = sns.heatmap(cm, 
                     annot=[[f"TP\n{cm[0][0]:.0f}", f"FN\n{cm[0][1]:.0f}"], [f"FP\n{cm[1][0]:.0f}", f"TN\n{cm[1][1]:.0f}"]], fmt='', cmap=cmap, linewidth=.5)
@@ -28,7 +28,7 @@ class Evaluator():
         plt.savefig('{}{} cm.png'.format(path, self.model.name), dpi=300, bbox_inches='tight')
         plt.close()
     
-    def roc_curve(self, color = 'darkorange'):
+    def roc_curve(self, plt, color = 'darkorange'):
         fpr, tpr, thresholds = roc_curve(self.model.y_test, self.model.y_pred)
         roc_auc = auc(fpr, tpr)
         plt.plot(fpr, tpr, color=color, label=self.model.name +' (area = %0.2f)' % roc_auc)

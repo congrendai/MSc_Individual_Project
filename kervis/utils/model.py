@@ -102,13 +102,7 @@ class Model:
             self.features = self.kernel.X
             
         if type(self.features) == scipy.sparse.csr_matrix:
-            self.features= self.features.toarray()
-
-        if -1 in set(self.dataset.y):
-                self.dataset.y = [0 if y == 1 else 1 for y in self.dataset.y]
-                
-        elif 0 not in set(self.dataset.y):
-            self.dataset.y = [y-1 for y in self.dataset.y]
+            self.features = self.features.toarray()
 
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.features, self.dataset.y, test_size=test_size, shuffle=shuffle)
 

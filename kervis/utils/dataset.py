@@ -101,6 +101,14 @@ class Dataset():
     
         try:
             self.y = dataset.target
+
+            # for MUTAG dataset and AIDS dataset
+            if -1 in set(self.y) or 0 in set(self.y):
+                self.y = [0 if y == 1 else 1 for y in self.y]
+                    
+            # for other datasets
+            # elif 0 not in set(self.dataset.y):
+            #     self.dataset.y = [y-1 for y in self.dataset.y]
         except:
             print("The dataset does not have target values.")
 

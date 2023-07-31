@@ -386,7 +386,7 @@ def fetch_dataset(
 
 fetch_dataset = fetch_dataset
 
-def get_cv_dataframe(kernels, models, dataset):
+def get_cv_dataframe(kernels, methods, dataset):
     """
     The function returns a dataframe with the cross validation scores for each
     kernel and model combination.
@@ -396,8 +396,8 @@ def get_cv_dataframe(kernels, models, dataset):
     kernels : list
         A list of kernels.
 
-    models : list
-        A list of models.
+    methods : list
+        A list of methods.
 
     dataset : str
         The name of the dataset.
@@ -408,17 +408,17 @@ def get_cv_dataframe(kernels, models, dataset):
         A dataframe with the cross validation scores for each kernel and model.
     """
     kernel_names = [kernel.name for kernel in kernels]
-    model_names = models
+    method_names = methods
     
-    df = pd.DataFrame(columns = ["Kernel", "Model", "Score"])
+    df = pd.DataFrame(columns = ["Kernel", "Method", "Score"])
     for kernel, kernel_name in zip(kernels, kernel_names):
-        for model_name in model_names:
-            model = Model(kernel, dataset, model_name)
+        for method_name in method_names:
+            model = Model(kernel, dataset, method_name)
             model.cross_validate()
-            temp_df = pd.DataFrame(columns = ["Kernel", "Model", "Score"])
+            temp_df = pd.DataFrame(columns = ["Kernel", "Method", "Score"])
             cv_scores = model.cv_scores
             temp_df["Score"] = cv_scores
-            temp_df["Model"] = [model_name] * len(cv_scores)
+            temp_df["Method"] = [method_name] * len(cv_scores)
             temp_df["Kernel"] = [kernel_name] * len(cv_scores)
             df = pd.concat([df, temp_df])
 
