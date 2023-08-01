@@ -243,6 +243,70 @@ class Model:
         else:
             print("No feature found in graph {}".format(graph_index))
 
+    def highlight_all(self, shap_feature_index, y="tp", node_size = 100,  figsize=20, with_labels=False):
+        base_index = len(self.X_train)
+
+        y_test = np.array(self.y_test)
+        y_pred = np.array(self.y_pred)
+
+        
+        test_TP = np.where((y_test == 0) & (y_pred == 0))[0]
+        graph_TP = [self.dataset.graphs[base_index+index] for index in test_TP]
+
+    
+        test_TN = np.where((y_test == 1) & (y_pred == 1))[0]
+        graph_TN = [self.dataset.graphs[base_index+index] for index in test_TN]
+
+    
+        test_FP = np.where((y_test == 1) & (y_pred == 0))[0]
+        graph_FP = [self.dataset.graphs[base_index+index] for index in test_FP]
+
+    
+        test_FN = np.where((y_test == 0) & (y_pred == 1))[0]
+        graph_FN = [self.dataset.graphs[base_index+index] for index in test_FN]
+
+        if y == "tp":
+            nodes = [node for graph in graph_TP for node in graph.nodes()]
+            test = test_TP
+
+        elif y == "tn":
+            nodes = [node for graph in graph_TN for node in graph.nodes()]
+            test = test_TN
+
+        elif y == "fp":
+            nodes = [node for graph in graph_FP for node in graph.nodes()]
+            test = test_FP
+
+        elif y == "fn":
+            nodes = [node for graph in graph_FN for node in graph.nodes()]
+            test = test_FN
+
+        subgraph = nx.subgraph(self.dataset.G, nodes)
+        pos = nx.nx_agraph.pygraphviz_layout(subgraph)
+        width = [type[2]+2 for type in subgraph.edges(data="type")]
+        plt.figure(figsize=(figsize, figsize), dpi=100)
+
+
+        if type(self.kernel) == type(VertexHistogram()):
+            features = []
+            for i in test:
+                features += self.find_features(i, shap_feature_index)
+                
+            node_color = []
+            for key, value in subgraph.nodes(data="label"):
+                if key in features:
+                    node_color.append(self.dataset.node_color_map[value])
+                else:
+                    node_color.append((0,0,0,0))
+
+            nx.draw(subgraph, pos=pos, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
+
+
+        # for i in range(len(self.X_test)):
+        #     self.find_features(i, shap_feature_index)
+
+
+
     # SHAP plots
     def summary_plot(self, max_display=20):
         shap.plots.beeswarm(self.shap_values, max_display=max_display)
