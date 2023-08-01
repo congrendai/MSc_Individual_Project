@@ -115,6 +115,7 @@ class Dataset():
         self.graphs = []
         self.G = nx.Graph()
         
+        # set node color map
         if self.metadata[name]["nl"] == True:
             self.node_labels = list(set(label for g in self.data for label in g[1].values()))
             if self.name == "AIDS":
@@ -199,6 +200,7 @@ class Dataset():
                 nx.draw(self.graphs[index], pos=pos, node_color=node_feature_color, node_size=node_size, edge_color = edge_color, width=edge_width, with_labels=with_labels)
             else:
                 nx.draw(self.graphs[index], pos=pos, node_color=node_color, node_size=node_size, edge_color = edge_color, width=edge_width, with_labels=with_labels)
+        plt.show()
 
     def plot_G(self, node_size=30):
         if self.metadata[self.name]["nl"] == True:
@@ -216,6 +218,7 @@ class Dataset():
         plt.margins(-0.03)
         pos = nx.nx_agraph.pygraphviz_layout(self.G)
         nx.draw(self.G, pos=pos, node_color=node_color, width=edge_width, node_size=node_size)
+        plt.show()
 
     def plot_class_distribution(self, with_figures=True):
         try:

@@ -426,7 +426,7 @@ def get_cv_dataframe(kernels, methods, dataset):
 
     return df
 
-def create_models(kernels, dataset, method='xgboost'):
+def create_models(kernels, dataset, method='xgboost', seed=None):
     """
     The function returns a dictionary of models for each kernel.
 
@@ -449,5 +449,5 @@ def create_models(kernels, dataset, method='xgboost'):
     models = {}
     for kernel in kernels:
         variable_name = "{}".format(kernel.name)
-        models[variable_name] = Model(kernel, dataset, method)
+        models[variable_name] = Model(kernel, dataset, method, seed=seed)
     return models
