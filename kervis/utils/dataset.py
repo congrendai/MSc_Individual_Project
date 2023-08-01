@@ -177,7 +177,7 @@ class Dataset():
             else:
                 raise ValueError("The dataset does not have node labels.")
     
-    def plot_graph(self, index, node_size=80, with_labels=False, node_feature_color = None, edge_color="k", pos = None):
+    def plot_graph(self, index, node_size=80, with_labels=False, node_feature_color = None, edge_color="k", pos = None, figsize=(5, 5)):
         if self.metadata[self.name]["nl"] == True:
             node_color = [self.node_color_map[label[1]] for label in self.graphs[index].nodes(data="label")]
         else:
@@ -189,7 +189,7 @@ class Dataset():
         else:
             edge_width = 0.5
 
-        plt.figure(figsize=(5, 5), dpi=200)
+        plt.figure(figsize=figsize, dpi=200)
         plt.margins(0.0)
         if pos:
             # for plot individual graph with if the kernel is graphlet
@@ -202,7 +202,7 @@ class Dataset():
                 nx.draw(self.graphs[index], pos=pos, node_color=node_color, node_size=node_size, edge_color = edge_color, width=edge_width, with_labels=with_labels)
         plt.show()
 
-    def plot_G(self, node_size=30):
+    def plot_G(self, node_size=30, figsize=(50, 50)):
         if self.metadata[self.name]["nl"] == True:
             node_color = [self.node_color_map[label[1]] for label in self.G.nodes(data="label")]
         else:
@@ -214,7 +214,7 @@ class Dataset():
         else:
             edge_width = 0.5
 
-        plt.figure(figsize=(50, 50), dpi=100)
+        plt.figure(figsize=figsize, dpi=100)
         plt.margins(-0.03)
         pos = nx.nx_agraph.pygraphviz_layout(self.G)
         nx.draw(self.G, pos=pos, node_color=node_color, width=edge_width, node_size=node_size)

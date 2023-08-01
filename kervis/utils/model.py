@@ -179,7 +179,7 @@ class Model:
         elif type(self.kernel) == type(WeisfeilerLehman()):
             print(self.kernel.WL_labels[shap_feature_index])
 
-    def highlight_features(self, graph_index, shap_feature_index, node_size = 80, sub_edge_width = 3, figsize=10, with_labels=False, all=True):
+    def highlight_features(self, graph_index, shap_feature_index, node_size = 80, sub_edge_width = 3, figsize=(10,10), with_labels=False, all=True):
         features = self.find_features(graph_index, shap_feature_index)
         if features:
             index = graph_index
@@ -204,17 +204,17 @@ class Model:
                         else:
                             node_color.append((0,0,0,0))
 
-                    self.dataset.plot_graph(index, node_feature_color=node_color, with_labels=with_labels, node_size=node_size)
+                    self.dataset.plot_graph(index, node_feature_color=node_color, with_labels=with_labels, node_size=node_size, figsize=figsize)
                     plt.show()
 
                 elif type(self.kernel) == type(EdgeHistogram()):
                     edge_color = ['r' if edge in features else 'k' for edge in self.dataset.graphs[index].edges()]
-                    self.dataset.plot_graph(index, edge_color=edge_color, with_labels=with_labels, node_size=node_size)
+                    self.dataset.plot_graph(index, edge_color=edge_color, with_labels=with_labels, node_size=node_size, figsize=figsize)
                     plt.show()
 
                 elif type(self.kernel) == type(GraphletSampling()):
                     features = [node+i*len(nodes) for i, feature in enumerate(features) for node in feature]
-                    plt.figure(figsize=(figsize, figsize), dpi=100)
+                    plt.figure(figsize=figsize, dpi=100)
                     plt.margins(0.0)
                     ax = nx.draw(G, pos=pos, node_color=node_color, width=edge_width, node_size=node_size)
                     nx.draw(G.subgraph(features), pos=pos, node_color="r", node_size=node_size, width=sub_edge_width, edge_color="r", with_labels=with_labels, ax=ax)
@@ -223,7 +223,7 @@ class Model:
                 elif type(self.kernel) == type(ShortestPath()):
                     features = [np.array(feature)+i*len(nodes) for i, feature in enumerate(features)]
                     features = [node for feature in features for node in feature]
-                    plt.figure(figsize=(figsize, figsize), dpi=100)
+                    plt.figure(figsize=figsize, dpi=100)
                     plt.margins(0.0)
                     nx.draw(G, pos=pos, node_color=node_color, width=edge_width, node_size=node_size, with_labels=with_labels)
                     nx.draw_networkx_edges(G.subgraph(features), pos=pos, edge_color="r", width=sub_edge_width)
@@ -231,25 +231,25 @@ class Model:
 
                 elif type(self.kernel) == type(WeisfeilerLehman()):
                     print("Cannot highlight features of the Weisfeiler-Lehman kernel")
-            else:
-                pos = nx.nx_agraph.pygraphviz_layout(graph)
-                if type(self.kernel) == type(ShortestPath()):
-                    for feature in features:
-                        ax = self.dataset.plot_graph(index, node_size=node_size, with_labels=with_labels)
-                        nx.draw_networkx_edges(graph.subgraph(feature), pos=pos, edge_color="r", width=sub_edge_width, ax=ax)
-                        plt.show()
+            # else:
+            #     pos = nx.nx_agraph.pygraphviz_layout(graph)
+            #     if type(self.kernel) == type(ShortestPath()):
+            #         for feature in features:
+            #             ax = self.dataset.plot_graph(index, node_size=node_size, with_labels=with_labels, figsize=figsize)
+            #             nx.draw_networkx_edges(graph.subgraph(feature), pos=pos, edge_color="r", width=sub_edge_width, ax=ax)
+            #             plt.show()
 
-                elif type(self.kernel) == type(GraphletSampling()):
-                    edge_width = [type[2]+2 for type in graph.edges(data="type")]
-                    for feature in features:
-                        ax = self.dataset.plot_graph(index, pos=pos, node_size=node_size, with_labels=with_labels)
-                        nx.draw(graph.subgraph(feature), pos=pos, node_color="r", node_size=node_size, edge_color="r", width=edge_width, with_labels=with_labels, ax=ax)
-                        plt.show()
+            #     elif type(self.kernel) == type(GraphletSampling()):
+            #         edge_width = [type[2]+2 for type in graph.edges(data="type")]
+            #         for feature in features:
+            #             ax = self.dataset.plot_graph(index, pos=pos, node_size=node_size, with_labels=with_labels, figsize=figsize)
+            #             nx.draw(graph.subgraph(feature), pos=pos, node_color="r", node_size=node_size, edge_color="r", width=edge_width, with_labels=with_labels, ax=ax)
+            #             plt.show()
                     
         else:
             print("No feature found in graph {}".format(graph_index))
 
-    def highlight_all(self, shap_feature_index, y="tp", node_size = 100,  figsize=20, with_labels=False):
+    def highlight_all(self, shap_feature_index, y="tp", node_size = 100,  figsize=(20,20), with_labels=False):
         base_index = len(self.X_train)
 
         y_test = np.array(self.y_test)
@@ -290,10 +290,9 @@ class Model:
         subgraph = nx.subgraph(self.dataset.G, nodes)
         pos = nx.nx_agraph.pygraphviz_layout(subgraph)
         width = [type[2]+2 for type in subgraph.edges(data="type")]
-        plt.figure(figsize=(figsize, figsize), dpi=100)
+        plt.figure(figsize=figsize, dpi=100)
 
         print("Graph indices: {}".format(np.array(test)))
-
 
         if type(self.kernel) == type(VertexHistogram()):
             features = []
@@ -310,7 +309,7 @@ class Model:
             nx.draw(subgraph, pos=pos, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
             plt.show()
 
-        if type(self.kernel) == type(EdgeHistogram()):
+        elif type(self.kernel) == type(EdgeHistogram()):
             features = []
             for i in test:
                 features += self.find_features(i, shap_feature_index)
@@ -319,21 +318,34 @@ class Model:
             nx.draw(subgraph, pos=pos, edge_color=edge_color, width=width, node_size=node_size, with_labels=with_labels)
             plt.show()
 
-        if type(self.kernel) == type(ShortestPath()):
+        elif type(self.kernel) == type(GraphletSampling()):
+            features = []
+            for i in test:
+                feature = self.find_features(i, shap_feature_index)
+                # if there are multiple graphlets
+                # only the first one will be highlighted
+                if feature:
+                    for node in feature[0]:
+                        features.append(node)
+
+
+            node_color = [self.dataset.node_color_map[node[1]] for node in subgraph.nodes(data="label")]
+            width = [type[2]+2 for type in subgraph.edges(data="type")]
+
+            nx.draw(subgraph, pos=pos, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
+            nx.draw(subgraph.subgraph(features), pos=pos, node_color="r", node_size=node_size, edge_color="r", width=width, with_labels=with_labels)
+            plt.show()
+
+        elif type(self.kernel) == type(ShortestPath()):
             features = []
             for i in test:
                 feature = self.find_features(i, shap_feature_index)
                 # if there are multiple shortest paths with the same length
                 # only the first one will be highlighted
                 if feature:
-                    features.append(feature[0])
-
-            # features = []
-            # for i in test:
-            #     features += self.find_features(i, shap_feature_index)
-
+                    for node in feature[0]:
+                        features.append(node)
             
-            features = [node for feature in features for node in feature]
             node_color = [self.dataset.node_color_map[node[1]] for node in subgraph.nodes(data="label")]
             width = [type[2]+2 for type in subgraph.edges(data="type")]
 
@@ -341,38 +353,32 @@ class Model:
             nx.draw_networkx_edges(subgraph.subgraph(features), pos=pos, edge_color="r", width=width)
             plt.show()
 
-        # for i in range(len(self.X_test)):
-        #     self.find_features(i, shap_feature_index)
-
-
-
     # SHAP plots
-    
-    def summary_plot(self, max_display=20, size=None):
+    def summary_plot(self, max_display=20, figsize=None):
         shap.plots.beeswarm(self.shap_values, max_display=max_display, show=False)
-        figure_setting(size)
+        figure_setting(figsize)
 
-    def force_plot(self, graph_index, size=(10,10)):
+    def force_plot(self, graph_index, figsize=(10,10)):
         shap.plots.force(self.shap_values[graph_index-len(self.X_train)], matplotlib=True, show=False)
-        figure_setting(size)
+        figure_setting(figsize)
 
-    def bar_plot(self, graph_index=None, max_display=None, size=None):
+    def bar_plot(self, graph_index=None, max_display=None, figsize=None):
         if graph_index == None:
             shap.plots.bar(self.shap_values, max_display=max_display, show=False)
         else:
             shap.plots.bar(self.shap_values[graph_index-len(self.X_train)], max_display=max_display, show=False)
-        figure_setting(size)
+        figure_setting(figsize)
 
-    def waterfall_plot(self, graph_index, max_display=10, size=None):
+    def waterfall_plot(self, graph_index, max_display=10, figsize=None):
         shap.plots.waterfall(self.shap_values[graph_index-len(self.X_train)], max_display=max_display, show=False)
-        figure_setting(size)
+        figure_setting(figsize)
 
-    def heatmap_plot(self, max_display=10, size=None):
+    def heatmap_plot(self, max_display=10, figsize=None):
         shap.plots.heatmap(self.shap_values, max_display=max_display, show=False)
-        figure_setting(size)
+        figure_setting(figsize)
 
-def figure_setting(size):
-    if size:
+def figure_setting(figsize):
+    if figsize:
         fig, ax = plt.gcf(), plt.gca()
-        fig.set_size_inches(size[0], size[1])
+        fig.set_size_inches(figsize[0], figsize[1])
     plt.show()
