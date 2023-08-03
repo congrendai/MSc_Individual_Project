@@ -249,7 +249,7 @@ class Model:
         else:
             print("No feature found in graph {}".format(graph_index))
 
-    def highlight_all(self, shap_feature_index, y="tp", node_size = 100,  figsize=(20,20), with_labels=False):
+    def highlight_all(self, y="tp", node_size = 50,  figsize=(10,10), feature=None, critical=True, with_labels=False):
         base_index = len(self.X_train)
 
         y_test = np.array(self.y_test)
@@ -273,85 +273,158 @@ class Model:
 
         if y == "tp":
             nodes = [node for graph in graph_TP for node in graph.nodes()]
-            test = test_TP
+            test_graphs = test_TP
 
         elif y == "tn":
             nodes = [node for graph in graph_TN for node in graph.nodes()]
-            test = test_TN
+            test_graphs = test_TN
 
         elif y == "fp":
             nodes = [node for graph in graph_FP for node in graph.nodes()]
-            test = test_FP
+            test_graphs = test_FP
 
         elif y == "fn":
             nodes = [node for graph in graph_FN for node in graph.nodes()]
-            test = test_FN
+            test_graphs = test_FN
 
         subgraph = nx.subgraph(self.dataset.G, nodes)
         pos = nx.nx_agraph.pygraphviz_layout(subgraph)
+        node_color = [self.dataset.node_color_map[node[1]] for node in subgraph.nodes(data="label")]
         width = [type[2]+2 for type in subgraph.edges(data="type")]
         plt.figure(figsize=figsize, dpi=100)
 
-        print("Graph indices: {}".format(np.array(test)))
+        print("Graph indices: {}".format(np.array(test_graphs)))
 
-        if type(self.kernel) == type(VertexHistogram()):
-            features = []
-            for i in test:
-                features += self.find_features(i, shap_feature_index)
+        if critical:
+            shap_indices = [np.argmax(abs(self.shap_values.values[i-base_index])) for i in test_graphs]
+
+            if type(self.kernel) == type(VertexHistogram()):
+                features = []
+                for graph, shap_index in zip(test_graphs, shap_indices):
+                    features += self.find_features(graph, shap_index)
+                    
+                VH_node_color = []
+                for key, value in subgraph.nodes(data="label"):
+                    if key in features:
+                        VH_node_color.append(self.dataset.node_color_map[value])
+                    else:
+                        VH_node_color.append((0,0,0,0))
+
+                nx.draw(subgraph, pos=pos, node_color=VH_node_color, width=width, node_size=node_size, with_labels=with_labels)
+                plt.savefig("./plots/result/visualization/{}_{}_critical.png".format(self.name, y))
+                plt.show()
                 
-            node_color = []
-            for key, value in subgraph.nodes(data="label"):
-                if key in features:
-                    node_color.append(self.dataset.node_color_map[value])
-                else:
-                    node_color.append((0,0,0,0))
 
-            nx.draw(subgraph, pos=pos, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
-            plt.show()
+            elif type(self.kernel) == type(EdgeHistogram()):
+                features = []
+                for graph, shap_index in zip(test_graphs, shap_indices):
+                    features += self.find_features(graph, shap_index)
 
-        elif type(self.kernel) == type(EdgeHistogram()):
-            features = []
-            for i in test:
-                features += self.find_features(i, shap_feature_index)
+                edge_color = ['r' if edge in features else 'k' for edge in subgraph.edges()]
+                nx.draw(subgraph, pos=pos, edge_color=edge_color, width=width, node_color=node_color, node_size=node_size, with_labels=with_labels)
+                plt.savefig("./plots/result/visualization/{}_{}_critical.png".format(self.name, y))
+                plt.show()
+                
 
-            edge_color = ['r' if edge in features else 'k' for edge in subgraph.edges()]
-            nx.draw(subgraph, pos=pos, edge_color=edge_color, width=width, node_size=node_size, with_labels=with_labels)
-            plt.show()
+            elif type(self.kernel) == type(GraphletSampling()):
+                features = []
+                for graph, shap_index in zip(test_graphs, shap_indices):
+                    feature = self.find_features(graph, shap_index)
+                    # if there are multiple graphlets
+                    # only the first one will be highlighted
+                    if feature:
+                        for node in feature[0]:
+                            features.append(node)
 
-        elif type(self.kernel) == type(GraphletSampling()):
-            features = []
-            for i in test:
-                feature = self.find_features(i, shap_feature_index)
-                # if there are multiple graphlets
-                # only the first one will be highlighted
-                if feature:
-                    for node in feature[0]:
-                        features.append(node)
+                
+                nx.draw(subgraph, pos=pos, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
+                nx.draw(subgraph.subgraph(features), pos=pos, node_color="r", node_size=node_size, edge_color="r", width=width, with_labels=with_labels)
+                plt.savefig("./plots/result/visualization/{}_{}_critical.png".format(self.name, y))
+                plt.show()
+                
 
+            elif type(self.kernel) == type(ShortestPath()):
+                features = []
+                for graph, shap_index in zip(test_graphs, shap_indices):
+                    feature = self.find_features(graph, shap_index)
+                    # if there are multiple shortest paths with the same length
+                    # only the first one will be highlighted
+                    if feature:
+                        for node in feature[0]:
+                            features.append(node)
+                
+                nx.draw(subgraph, pos=pos, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
+                nx.draw_networkx_edges(subgraph.subgraph(features), pos=pos, edge_color="r", width=width)
+                plt.savefig("./plots/result/visualization/{}_{}_critical.png".format(self.name, y))
+                plt.show()
+                
 
-            node_color = [self.dataset.node_color_map[node[1]] for node in subgraph.nodes(data="label")]
-            width = [type[2]+2 for type in subgraph.edges(data="type")]
+            elif type(self.kernel) == type(WeisfeilerLehman()):
+                for graph, shap_index in zip(test_graphs, shap_indices):
+                    self.find_features(graph, shap_index) 
+                
+                plt.close()
+                
+                
+        else:
+            if type(self.kernel) == type(VertexHistogram()):
+                features = []
+                for i in test_graphs:
+                    features += self.find_features(i, feature)
+                    
+                VH_node_color = []
+                for key, value in subgraph.nodes(data="label"):
+                    if key in features:
+                        VH_node_color.append(self.dataset.node_color_map[value])
+                    else:
+                        VH_node_color.append((0,0,0,0))
 
-            nx.draw(subgraph, pos=pos, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
-            nx.draw(subgraph.subgraph(features), pos=pos, node_color="r", node_size=node_size, edge_color="r", width=width, with_labels=with_labels)
-            plt.show()
+                nx.draw(subgraph, pos=pos, node_color=VH_node_color, width=width, node_size=node_size, with_labels=with_labels)
+                plt.savefig("./plots/result/visualization/{}_{}.png".format(self.name, y))
+                plt.show()
+                
 
-        elif type(self.kernel) == type(ShortestPath()):
-            features = []
-            for i in test:
-                feature = self.find_features(i, shap_feature_index)
-                # if there are multiple shortest paths with the same length
-                # only the first one will be highlighted
-                if feature:
-                    for node in feature[0]:
-                        features.append(node)
-            
-            node_color = [self.dataset.node_color_map[node[1]] for node in subgraph.nodes(data="label")]
-            width = [type[2]+2 for type in subgraph.edges(data="type")]
+            elif type(self.kernel) == type(EdgeHistogram()):
+                features = []
+                for i in test_graphs:
+                    features += self.find_features(i, feature)
 
-            nx.draw(subgraph, pos=pos, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
-            nx.draw_networkx_edges(subgraph.subgraph(features), pos=pos, edge_color="r", width=width)
-            plt.show()
+                edge_color = ['r' if edge in features else 'k' for edge in subgraph.edges()]
+                nx.draw(subgraph, pos=pos, edge_color=edge_color, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
+                plt.savefig("./plots/result/visualization/{}_{}.png".format(self.name, y))
+                plt.show()
+                
+
+            elif type(self.kernel) == type(GraphletSampling()):
+                features = []
+                for i in test_graphs:
+                    feature = self.find_features(i, feature)
+                    # if there are multiple graphlets
+                    # only the first one will be highlighted
+                    if feature:
+                        for node in feature[0]:
+                            features.append(node)
+
+                nx.draw(subgraph, pos=pos, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
+                nx.draw(subgraph.subgraph(features), pos=pos, node_color="r", node_size=node_size, edge_color="r", width=width, with_labels=with_labels)
+                plt.savefig("./plots/result/visualization/{}_{}.png".format(self.name, y))
+                plt.show()
+                
+
+            elif type(self.kernel) == type(ShortestPath()):
+                features = []
+                for i in test_graphs:
+                    feature = self.find_features(i, feature)
+                    # if there are multiple shortest paths with the same length
+                    # only the first one will be highlighted
+                    if feature:
+                        for node in feature[0]:
+                            features.append(node)
+                
+                nx.draw(subgraph, pos=pos, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
+                nx.draw_networkx_edges(subgraph.subgraph(features), pos=pos, edge_color="r", width=width)
+                plt.savefig("./plots/result/visualization/{}_{}.png".format(self.name, y))
+                plt.show()
 
     # SHAP plots
     def summary_plot(self, max_display=20, figsize=None):
@@ -368,6 +441,7 @@ class Model:
         else:
             shap.plots.bar(self.shap_values[graph_index-len(self.X_train)], max_display=max_display, show=False)
         figure_setting(figsize)
+
 
     def waterfall_plot(self, graph_index, max_display=10, figsize=None):
         shap.plots.waterfall(self.shap_values[graph_index-len(self.X_train)], max_display=max_display, show=False)
