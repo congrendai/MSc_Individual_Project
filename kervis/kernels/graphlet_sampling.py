@@ -138,7 +138,7 @@ class GraphletSampling(Kernel):
         self.sampling = sampling
         self._initialized.update({"random_state": False, "k": False, "sampling": False})
 
-    def plot_all_graphlets(self, node_size = 5):
+    def plot_all_graphlets(self, node_size = 5, figsize=(10, 10)):
         """
         This function is used to plot all graphlets
 
@@ -146,6 +146,9 @@ class GraphletSampling(Kernel):
         ----------
         node_size: int
             the size of the nodes in the plot
+
+        figsize: tuple
+            the size of the figure  
 
         Returns
         -------
@@ -156,11 +159,11 @@ class GraphletSampling(Kernel):
             graphlets_G.add_nodes_from(np.array(graphlet.nodes())+key*self.k)
             graphlets_G.add_edges_from(np.array(graphlet.edges())+key*self.k)
 
-        plt.figure(figsize=(10, 10), dpi=300)
+        plt.figure(figsize=figsize, dpi=300)
         pos = nx.nx_agraph.pygraphviz_layout(graphlets_G)
         nx.draw(graphlets_G, pos=pos, node_color="tab:blue", width=1, node_size=node_size)
 
-    def plot_graphlet(self, graphlet_index, node_size = 80):
+    def plot_graphlet(self, graphlet_index, node_size = 80, figsize=(5, 5)):
         """
         This function is used to plot a graphlet
 
@@ -172,12 +175,15 @@ class GraphletSampling(Kernel):
         node_size: int
             the size of the nodes in the plot
 
+        figsize: tuple
+            the size of the figure
+
         Returns
         -------
         None
         """
         graphlet = self._networkx_graph_bins[graphlet_index]
-        plt.figure(figsize=(10, 10), dpi=300)
+        plt.figure(figsize=figsize, dpi=300)
         pos = nx.nx_agraph.pygraphviz_layout(graphlet)
         nx.draw(graphlet, pos=pos, node_color="tab:blue", width=1, node_size=node_size)
 

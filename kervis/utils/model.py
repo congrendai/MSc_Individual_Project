@@ -4,6 +4,7 @@ import numpy as np
 import xgboost as xgb
 import networkx as nx
 from sklearn.svm import SVC
+from collections import Counter
 from itertools import combinations
 from matplotlib import pyplot as plt
 from kervis.utils.evaluator import Evaluator
@@ -249,6 +250,29 @@ class Model:
         else:
             print("No feature found in graph {}".format(graph_index))
 
+    def display_T(self, y="P", node_size = 50, figsize=(10,10), with_labels=False):
+        base_index = len(self.X_train)
+
+        if y == "p":
+            indices = [index for index, y in enumerate(self.y_test) if y == 0]
+        elif y == "n":
+            indices = [index for index, y in enumerate(self.y_test) if y == 1]
+        
+
+        print("The number of {} graphs: {}".format(y, len(indices)))
+        graphs = [self.dataset.graphs[index+base_index] for index in indices]
+        nodes = [node for graph in graphs for node in graph.nodes()]
+        subgraph = nx.subgraph(self.dataset.G, nodes)
+        pos = nx.nx_agraph.pygraphviz_layout(subgraph)
+        node_color = [self.dataset.node_color_map[node[1]] for node in subgraph.nodes(data="label")]
+        width = [type[2]+2 for type in subgraph.edges(data="type")]
+        plt.figure(figsize=figsize, dpi=100)
+        nx.draw(subgraph, pos=pos, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
+        plt.savefig("./plots/result/visualization/{}_{}.png".format(self.name, y))
+        plt.show()
+
+
+
     def highlight_all(self, y="tp", node_size = 50,  figsize=(10,10), feature=None, critical=True, with_labels=False):
         base_index = len(self.X_train)
 
@@ -297,6 +321,9 @@ class Model:
 
         if critical:
             shap_indices = [np.argmax(abs(self.shap_values.values[i-base_index])) for i in test_graphs]
+            
+            print(shap_indices)
+            print(Counter(shap_indices))
 
             if type(self.kernel) == type(VertexHistogram()):
                 features = []
@@ -360,12 +387,11 @@ class Model:
                 
 
             elif type(self.kernel) == type(WeisfeilerLehman()):
+                nx.draw(subgraph, pos=pos, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
+                plt.show()
                 for graph, shap_index in zip(test_graphs, shap_indices):
                     self.find_features(graph, shap_index) 
-                
-                plt.close()
-                
-                
+
         else:
             if type(self.kernel) == type(VertexHistogram()):
                 features = []
