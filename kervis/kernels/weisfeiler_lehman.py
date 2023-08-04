@@ -60,6 +60,15 @@ class WeisfeilerLehman(Kernel):
 
     _inv_labels : dict
         An inverse dictionary, used for relabeling on each iteration.
+    
+    iter_subtree_list: list
+        a list of subtrees for each iteration to form the feature matrix
+
+    WL_labels: dict
+        a dictionary of WL node labels
+
+    WL_inv_labels: dict
+        a dictionary of WL node labels inverse
 
     """
 
