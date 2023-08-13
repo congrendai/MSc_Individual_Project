@@ -337,8 +337,22 @@ class Model:
             for graph, shap_index in zip(test_graphs, shap_indices):
                 features += self.find_features(graph, shap_index)
 
-            edge_color = ['r' if edge in features else 'k' for edge in subgraph.edges()]
-            nx.draw(subgraph, pos=pos, edge_color=edge_color, width=width, node_color=node_color, node_size=node_size, with_labels=with_labels)
+            # edge_color = ['r' if edge in features else 'k' for edge in subgraph.edges()]
+            edge_color = []
+            for edge in subgraph.edges(data="type"):
+                if (edge[0], edge[1]) in features:
+                    if edge[2] == 0:
+                        edge_color.append("r")
+                    elif edge[2] == 1:
+                        edge_color.append("g")
+                    elif edge[2] == 2:
+                        edge_color.append("b")
+                    elif edge[2] == 3:
+                        edge_color.append("y")
+                else:
+                    edge_color.append("k")
+
+            nx.draw(subgraph, pos=pos, edge_color=edge_color, width=width, node_color='k', node_size=node_size, with_labels=with_labels)
             plt.savefig("./plots/result/visualization/{}_{}_critical.png".format(self.name, y))
             plt.show()
             
@@ -354,13 +368,15 @@ class Model:
                         for node in feature[0]:
                             features.append(node)
 
-                    nx.draw(subgraph, pos=pos, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
-                    nx.draw(subgraph.subgraph(features), pos=pos, node_color="r", node_size=node_size, edge_color="r", width=width, with_labels=with_labels)
-                    plt.savefig("./plots/result/visualization/{}_{}_critical.png".format(self.name, y))
-                    plt.show()
+                    
 
                 else:
                     self.highlight_features(graph, shap_index, node_size=node_size, figsize=figsize, with_labels=with_labels, path=path)
+
+            nx.draw(subgraph, pos=pos, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
+            nx.draw(subgraph.subgraph(features), pos=pos, node_color="r", node_size=node_size, edge_color="r", width=width, with_labels=with_labels)
+            plt.savefig("./plots/result/visualization/{}_{}_critical.png".format(self.name, y))
+            plt.show()
 
         elif type(self.kernel) == type(ShortestPath()):
             features = []
@@ -372,13 +388,14 @@ class Model:
                     if feature:
                         for node in feature[0]:
                             features.append(node)
-                
-                    nx.draw(subgraph, pos=pos, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
-                    nx.draw_networkx_edges(subgraph.subgraph(features), pos=pos, edge_color="r", width=width)
-                    plt.savefig("./plots/result/visualization/{}_{}_critical.png".format(self.name, y))
-                    plt.show()
+            
                 else:
                     self.highlight_features(graph, shap_index, node_size=node_size, figsize=figsize, with_labels=with_labels, path=path)
+
+            nx.draw(subgraph, pos=pos, node_color=node_color, width=width, node_size=node_size, with_labels=with_labels)
+            nx.draw_networkx_edges(subgraph.subgraph(features), pos=pos, edge_color="r", width=width)
+            plt.savefig("./plots/result/visualization/{}_{}_critical.png".format(self.name, y))
+            plt.show()
 
             
 

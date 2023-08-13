@@ -6,6 +6,30 @@ from sklearn.metrics import roc_curve, auc
 
 
 class Evaluator():
+    """
+    For evaluating the model
+
+    Parameters
+    ----------
+    model : Model
+        The model to be evaluated
+
+    Attributes
+    ----------
+    model : Model
+        The model to be evaluated
+
+    functions
+    ---------
+    accuracy()
+        Return the accuracy of the model
+
+    confusion_matrix()
+        Plot the confusion matrix of the model
+
+    roc_curve()
+        Plot the ROC curve of the model
+    """
     def __init__(self, model):
         self.model = model
 

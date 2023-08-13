@@ -103,6 +103,9 @@ class GraphletSampling(Kernel):
     _graph_bins : dict
         A dictionary of graph bins holding pynauty objects
 
+    _networkx_graph_bins:
+        A dictonary of networkx graphs holding the graphlets
+
     _nx : int
         Holds the number of sampled X graphs.
 

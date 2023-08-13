@@ -102,7 +102,7 @@ class Dataset():
         try:
             self.y = dataset.target
 
-            # for MUTAG dataset and AIDS dataset
+            # for MUTAG dataset
             if -1 in set(self.y) or 0 in set(self.y):
                 self.y = [0 if y == 1 else 1 for y in self.y]
                     

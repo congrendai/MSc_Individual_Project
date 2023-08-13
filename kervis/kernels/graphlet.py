@@ -5,6 +5,26 @@ from itertools import combinations
 from matplotlib import pyplot as plt
 
 class Graphlet(Kernel):
+    """
+    Graphlet kernel
+
+    Parameters
+    ----------
+    k : int, default=3
+        The size of graphlet
+
+    connected : bool, default=False
+        If True, only connected graphlets are considered
+
+    Attributes
+    ----------
+    name : str
+        The name of the kernel
+
+    graphlets : list of networkx.Graph
+        The list of graphlets
+    """
+
     def __init__(self, k = 3, connected = False):
         self.k = k
         self.name = "GL_" + str(self.k)
@@ -14,6 +34,19 @@ class Graphlet(Kernel):
             self.graphlets = [g for g in nx.graph_atlas_g() if len(g.nodes())==self.k]
 
     def get_feature(self, graph):
+        """
+        Get the feature vector of a graph
+
+        Parameters
+        ----------
+        graph : networkx.Graph
+            The graph
+
+        Returns
+        -------
+        feature : list of int
+            The feature vector
+        """
         feature = []
         C = combinations(list(graph), self.k)
         for c in C:
