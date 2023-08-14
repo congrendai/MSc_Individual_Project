@@ -250,6 +250,7 @@ class Model:
         
 
         print("The number of {} graphs: {}".format(y, len(indices)))
+        print("Graph indices: {}".format(np.array(indices)+base_index))
         graphs = [self.dataset.graphs[index+base_index] for index in indices]
         nodes = [node for graph in graphs for node in graph.nodes()]
         subgraph = nx.subgraph(self.dataset.G, nodes)
