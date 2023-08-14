@@ -165,6 +165,7 @@ class GraphletSampling(Kernel):
         plt.figure(figsize=figsize, dpi=300)
         pos = nx.nx_agraph.pygraphviz_layout(graphlets_G)
         nx.draw(graphlets_G, pos=pos, node_color="tab:blue", width=1, node_size=node_size)
+        plt.show()
 
     def plot_graphlet(self, graphlet_index, node_size = 80, figsize=(5, 5)):
         """
@@ -189,6 +190,7 @@ class GraphletSampling(Kernel):
         plt.figure(figsize=figsize, dpi=300)
         pos = nx.nx_agraph.pygraphviz_layout(graphlet)
         nx.draw(graphlet, pos=pos, node_color="tab:blue", width=1, node_size=node_size)
+        plt.show()
 
     def initialize(self):
         """Initialize all transformer arguments, needing initialization."""
